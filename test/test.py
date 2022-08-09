@@ -15,14 +15,26 @@ this file. If not, please write to: josephchenhk@gmail.com
 """
 
 import numpy as np
+import pandas as pd
+from finta import TA
 
 import qtalib.indicators as ta
 
 values = np.array([12.0, 14, 64.0, 32.0, 53.0])
 
-print(ta.SMA(values, 5))
-print(ta.SMA(values, 4))
 print(ta.SMA(values, 3))
-print(ta.SMA(values, 2))
-print(ta.SMA(values, 1))
+
+ohlc = pd.DataFrame({
+    "open": np.zeros_like(values),
+    "high": np.zeros_like(values),
+    "low": np.zeros_like(values),
+    "close": values,
+})
+
+print(TA.SMA(ohlc, 3))
+print()
+# print(ta.SMA(values, 4))
+# print(ta.SMA(values, 3))
+# print(ta.SMA(values, 2))
+# print(ta.SMA(values, 1))
 

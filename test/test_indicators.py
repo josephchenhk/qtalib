@@ -15,6 +15,8 @@ this file. If not, please write to: josephchenhk@gmail.com
 """
 import unittest
 import numpy as np
+import pandas as pd
+from finta import TA
 
 import qtalib.indicators as ta
 
@@ -27,7 +29,14 @@ float_format = lambda number: float("{:.2f}".format(number))
 class TestFunctions(unittest.TestCase):
 
     def testSMA(self):
-        expected = np.array([13.,  39.,  48.,  42.5])
-        actual = ta.SMA(values, 2)
-        res = np.array_equal(expected, actual)
-        self.assertEqual(res, 1)
+        ohlc = pd.DataFrame({
+            "open": np.zeros_like(values),
+            "high": np.zeros_like(values),
+            "low": np.zeros_like(values),
+            "close": values,
+        })
+        for i in range(1, len(values) + 1):
+            expected = TA.SMA(ohlc, i).dropna().values
+            actual = ta.SMA(values, i)
+            res = np.array_equal(expected, actual)
+            self.assertEqual(res, 1)
