@@ -23,9 +23,11 @@ values = np.array([12.0, 14.0, 64.0, 32.0, 53.0])
 values1 = np.array([1., 2., 3., 4., 5.])
 
 float_format = lambda number: float("{:.2f}".format(number))
+
 class TestFunctions(unittest.TestCase):
 
     def testSMA(self):
-        expected = 40.75
-        actual = ta.SMA(values, 4)
-        self.assertEqual(expected, actual)
+        expected = np.array([13.,  39.,  48.,  42.5])
+        actual = ta.SMA(values, 2)
+        res = np.array_equal(expected, actual)
+        self.assertEqual(res, 1)

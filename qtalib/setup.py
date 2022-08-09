@@ -17,7 +17,10 @@ from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
 
-ext_modules = [Extension("indicators", ["indicators.pyx"])]
+import numpy
+
+ext_modules = [Extension("indicators", ["indicators.pyx"],
+                         include_dirs=[numpy.get_include()])]
 setup(
     name="Technical Indicators",
     cmdclass={'build_ext': build_ext},

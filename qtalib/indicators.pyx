@@ -15,20 +15,30 @@ this file. If not, please write to: josephchenhk@gmail.com
 """
 
 import numpy as np
+cimport numpy as np
 from libc.math cimport sqrt
 from libc.stdlib cimport malloc, free
 from cpython cimport array
 
 
-cpdef float SMA(double[:] closes, int period):
+cpdef np.ndarray[np.float64_t, ndim=1] SMA(double[:] closes, int period):
     """
     Simple Moving Average function 
     @param closes: list of closing candle prices 
     @param period: period to calculate for 
     """
     cdef int length = closes.shape[0]
-    cdef float total = closes[length-period]
+    cdef np.ndarray[np.float64_t, ndim=1] result = np.zeros(length - period + 1,
+                                                            dtype=np.float64)
+    cdef double total
     cdef int i
-    for i in range((length-period)+1, length):
+    for i in range(period - 1, length):
+        if i == period - 1:
+            total = 0
+            for j in range(i - period + 1, i + 1):
+                total += closes[j]
+        else:
             total += closes[i]
-    return float(total/period)
+            total -= closes[i - period]
+        result[i - period + 1] = total / period
+    return result
