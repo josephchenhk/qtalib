@@ -42,3 +42,28 @@ cpdef np.ndarray[np.float64_t, ndim=1] SMA(double[:] closes, int period):
             total -= closes[i - period]
         result[i - period + 1] = total / period
     return result
+
+cpdef np.ndarray[np.float64_t, ndim=1] EMA(double[:] closes, int period):
+    """
+    Exponential Moving Average function   
+    Ref1: https://github.com/peerchemist/finta/blob/master/finta/finta.py
+    Ref2: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.ewm.html
+    @param closes: list of closing candle prices 
+    @param period: period to calculate for 
+    """
+    cdef int length = closes.shape[0]
+    cdef np.ndarray[np.float64_t, ndim=1] result = np.zeros(length,
+                                                            dtype=np.float64)
+    cdef double alpha = 2. / (period + 1)
+    cdef double w = 1. - alpha
+    cdef double f1 = 1
+    cdef double f2 = 1 + w
+    cdef int i
+    for i in range(0, length):
+        if i == 0:
+            result[i] = closes[0]
+        else:
+            result[i] = (closes[i] + w*f1*result[i-1]) / f2
+            f1 += w**i
+            f2 += w**(i+1)
+    return result
