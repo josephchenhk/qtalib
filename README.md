@@ -10,6 +10,9 @@
 
 **Latest update on 2022-08-10**
 
+Technical indicators implemented in Cython/C. This is supposed to be a
+faster technical analysis library with perfect integration to Python.
+
 ## Available technical indicators
 
 * Simple Moving Average (SMA)
