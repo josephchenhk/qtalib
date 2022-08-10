@@ -22,7 +22,7 @@ import qtalib.indicators as ta
 
 values = np.array([12.0, 14, 64.0, 32.0, 53.0])
 
-print(ta.SMA(values, 3))
+print(ta.EMA(values, 2))
 
 ohlc = pd.DataFrame({
     "open": np.zeros_like(values),
@@ -31,7 +31,7 @@ ohlc = pd.DataFrame({
     "close": values,
 })
 
-print(TA.SMA(ohlc, 3))
+print(TA.EMA(ohlc, 2))
 print()
 # print(ta.SMA(values, 4))
 # print(ta.SMA(values, 3))
