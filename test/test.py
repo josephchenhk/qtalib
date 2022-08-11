@@ -13,28 +13,40 @@ written for another century.
 You should have received a copy of the JXW license with
 this file. If not, please write to: josephchenhk@gmail.com
 """
+import os
+import pyximport
 
 import numpy as np
 import pandas as pd
 from finta import TA
 
+# Ref: https://github.com/cython/cython/issues/1725
+numpy_path = np.get_include()
+os.environ['CFLAGS'] = "-I" + numpy_path
+pyximport.install(setup_args={"include_dirs":numpy_path})
+
 import qtalib.indicators as ta
 
-values = np.array([12.0, 14, 64.0, 32.0, 53.0])
 
-print(ta.EMA(values, 2))
+opens = np.array([10.0, 15.0, 59.5, 32.0, 55.0])
+highs = np.array([15.0, 18.0, 69.0, 35.0, 55.0])
+lows = np.array([10.0, 12.0, 55.0, 29.5, 50.0])
+closes = np.array([12.0, 14, 64.0, 32.0, 53.0])
+volumes = np.array([1000, 500, 1200, 800, 2000])
 
 ohlc = pd.DataFrame({
-    "open": np.zeros_like(values),
-    "high": np.zeros_like(values),
-    "low": np.zeros_like(values),
-    "close": values,
+    "open": opens,
+    "high": highs,
+    "low": lows,
+    "close": closes,
 })
 
-print(TA.EMA(ohlc, 2))
-print()
-# print(ta.SMA(values, 4))
-# print(ta.SMA(values, 3))
-# print(ta.SMA(values, 2))
-# print(ta.SMA(values, 1))
+print(TA.SMA(ohlc, 2))
+print(ta.SMA(closes, 2))
 
+print(TA.EMA(ohlc, 2))
+print(ta.EMA(closes, 2))
+
+print(TA.MACD(ohlc, period_fast=12, period_slow=26, signal=9))
+print(ta.MACD(closes, period_fast=12, period_slow=26, signal=9))
+print()
