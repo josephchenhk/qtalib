@@ -19,6 +19,8 @@ faster technical analysis library with perfect integration to Python.
 
 * Exponential Moving Average (EMA)
 
+* Moving Average Convergence Divergence (MACD) 
+
 ## Installation
 
 You may run the folllowing command to install QTalib immediately:
