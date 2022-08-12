@@ -98,9 +98,13 @@ cpdef np.ndarray[np.float64_t, ndim= 2] MACD(
     A bearish crossover occurs when the MACD turns down and crosses below the
     signal line.
 
-    Returns:
-        col1: MACD
-        col2: SIGNAL
+    :param closes: np.array
+    :param period_fast: int
+    :param period_slow: int
+    :param signal: int
+    :param Returns: np.ndarray
+                    - col1: MACD
+                    - col2: SIGNAL
     """
     cdef np.ndarray[np.float64_t, ndim= 2] result
     cdef np.ndarray[np.float64_t, ndim= 1] EMA_fast = EMA(closes, period_fast)
@@ -125,10 +129,10 @@ cpdef np.ndarray[np.float64_t, ndim= 1] TR(
     2. Absolute value of the most recent period's high minus the previous close.
     3. Absolute value of the most recent period's low minus the previous close.
 
-    :param highs:
-    :param lows:
-    :param closes:
-    :return:
+    :param highs: np.array
+    :param lows: np.array
+    :param closes: np.array
+    :return: np.array
     """
     highs_arr = np.asarray(highs)
     lows_arr = np.asarray(lows)
@@ -149,10 +153,11 @@ cpdef np.ndarray[np.float64_t, ndim= 1] ATR(
     """
     Average True Range is moving average of True Range.
 
-    :param highs:
-    :param lows:
-    :param closes:
-    :return:
+    :param highs: np.array
+    :param lows: np.array
+    :param closes: np.array
+    :param period: int
+    :return: np.array
     """
     cdef np.ndarray[np.float64_t, ndim= 1] TR_ = TR(highs, lows, closes)
     return SMA(TR_, period=period)
