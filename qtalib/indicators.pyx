@@ -140,3 +140,19 @@ cpdef np.ndarray[np.float64_t, ndim= 1] TR(
     # True Range3 = Previous Close less Low
     TR3 = np.abs(shift(closes_arr, 1) - lows_arr)
     return np.nanmax(np.array([TR1, TR2, TR3]), axis=0)
+
+cpdef np.ndarray[np.float64_t, ndim= 1] ATR(
+        double[:] highs,
+        double[:] lows,
+        double[:] closes,
+        int period=14):
+    """
+    Average True Range is moving average of True Range.
+
+    :param highs:
+    :param lows:
+    :param closes:
+    :return:
+    """
+    cdef np.ndarray[np.float64_t, ndim= 1] TR_ = TR(highs, lows, closes)
+    return SMA(TR_, period=period)

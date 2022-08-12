@@ -77,3 +77,14 @@ class TestFunctions(unittest.TestCase):
         actual = ta.TR(highs, lows, closes)
         res = array_equal(expected, actual)
         self.assertEqual(res, 1)
+
+    def testATR(self):
+        test_data = test_data1
+        ohlc = pd.DataFrame(test_data)
+        highs = test_data["high"]
+        lows = test_data["low"]
+        closes = test_data["close"]
+        expected = TA.ATR(ohlc, period=3)
+        actual = ta.ATR(highs, lows, closes, 3)
+        res = array_equal(expected, actual)
+        self.assertEqual(res, 1)

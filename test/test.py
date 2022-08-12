@@ -50,7 +50,10 @@ ohlc = pd.DataFrame({
 # print(TA.MACD(ohlc, period_fast=12, period_slow=26, signal=9))
 # print(ta.MACD(closes, period_fast=12, period_slow=26, signal=9))
 
-print(TA.TR(ohlc))
-print(ta.TR(highs, lows, closes))
+# print(TA.TR(ohlc))
+# print(ta.TR(highs, lows, closes))
+
+print(TA.ATR(ohlc, 3))
+print(ta.ATR(highs, lows, closes, 3))
 
 print()
