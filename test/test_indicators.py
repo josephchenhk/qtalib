@@ -66,3 +66,14 @@ class TestFunctions(unittest.TestCase):
         actual = ta.MACD(closes, period_fast=12, period_slow=26, signal=9)
         res = array_equal(expected, actual)
         self.assertEqual(res, 1)
+
+    def testTR(self):
+        test_data = test_data1
+        ohlc = pd.DataFrame(test_data)
+        highs = test_data["high"]
+        lows = test_data["low"]
+        closes = test_data["close"]
+        expected = TA.TR(ohlc)
+        actual = ta.TR(highs, lows, closes)
+        res = array_equal(expected, actual)
+        self.assertEqual(res, 1)

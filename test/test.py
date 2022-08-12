@@ -41,12 +41,16 @@ ohlc = pd.DataFrame({
     "close": closes,
 })
 
-print(TA.SMA(ohlc, 2))
-print(ta.SMA(closes, 2))
+# print(TA.SMA(ohlc, 2))
+# print(ta.SMA(closes, 2))
+#
+# print(TA.EMA(ohlc, 2))
+# print(ta.EMA(closes, 2))
+#
+# print(TA.MACD(ohlc, period_fast=12, period_slow=26, signal=9))
+# print(ta.MACD(closes, period_fast=12, period_slow=26, signal=9))
 
-print(TA.EMA(ohlc, 2))
-print(ta.EMA(closes, 2))
+print(TA.TR(ohlc))
+print(ta.TR(highs, lows, closes))
 
-print(TA.MACD(ohlc, period_fast=12, period_slow=26, signal=9))
-print(ta.MACD(closes, period_fast=12, period_slow=26, signal=9))
 print()
