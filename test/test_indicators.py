@@ -62,7 +62,7 @@ class TestFunctions(unittest.TestCase):
         test_data = test_data1
         ohlc = pd.DataFrame(test_data)
         closes = test_data["close"]
-        expected = TA.MACD(ohlc, period_fast=12, period_slow=26, signal=9)
+        expected = TA.MACD(ohlc, period_fast=12, period_slow=26, signal=9).dropna().values
         actual = ta.MACD(closes, period_fast=12, period_slow=26, signal=9)
         res = array_equal(expected, actual)
         self.assertEqual(res, 1)
@@ -73,7 +73,7 @@ class TestFunctions(unittest.TestCase):
         highs = test_data["high"]
         lows = test_data["low"]
         closes = test_data["close"]
-        expected = TA.TR(ohlc)
+        expected = TA.TR(ohlc).dropna().values
         actual = ta.TR(highs, lows, closes)
         res = array_equal(expected, actual)
         self.assertEqual(res, 1)
@@ -84,7 +84,17 @@ class TestFunctions(unittest.TestCase):
         highs = test_data["high"]
         lows = test_data["low"]
         closes = test_data["close"]
-        expected = TA.ATR(ohlc, period=3)
+        expected = TA.ATR(ohlc, period=3).dropna().values
         actual = ta.ATR(highs, lows, closes, 3)
+        res = array_equal(expected, actual)
+        self.assertEqual(res, 1)
+
+    def testSAR(self):
+        test_data = test_data1
+        ohlc = pd.DataFrame(test_data)
+        highs = test_data["high"]
+        lows = test_data["low"]
+        expected = TA.SAR(ohlc, 0.02, 0.2).dropna().values
+        actual = ta.SAR(highs, lows, 0.02, 0.2)
         res = array_equal(expected, actual)
         self.assertEqual(res, 1)

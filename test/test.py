@@ -23,7 +23,7 @@ from finta import TA
 # Ref: https://github.com/cython/cython/issues/1725
 numpy_path = np.get_include()
 os.environ['CFLAGS'] = "-I" + numpy_path
-pyximport.install(setup_args={"include_dirs":numpy_path})
+pyximport.install(setup_args={"include_dirs": numpy_path})
 
 import qtalib.indicators as ta
 
@@ -53,7 +53,10 @@ ohlc = pd.DataFrame({
 # print(TA.TR(ohlc))
 # print(ta.TR(highs, lows, closes))
 
-print(TA.ATR(ohlc, 3))
-print(ta.ATR(highs, lows, closes, 3))
+# print(TA.ATR(ohlc, 3))
+# print(ta.ATR(highs, lows, closes, 3))
+
+print(TA.SAR(ohlc, 0.02, 0.2))
+print(ta.SAR(highs, lows, 0.02, 0.2))
 
 print()
