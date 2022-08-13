@@ -25,6 +25,8 @@ faster technical analysis library with perfect integration to Python.
 
 * Absolute True Range (ATR)
 
+* (Parabolic) Stop and Reverse (SAR)
+
 ## Installation
 
 You may run the folllowing command to install QTalib immediately:
