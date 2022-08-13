@@ -161,3 +161,64 @@ cpdef np.ndarray[np.float64_t, ndim= 1] ATR(
     """
     cdef np.ndarray[np.float64_t, ndim= 1] TR_ = TR(highs, lows, closes)
     return SMA(TR_, period=period)
+
+cpdef np.ndarray[np.float64_t, ndim= 1] SAR(
+        double[:] highs,
+        double[:] lows,
+        double af=0.02,
+        double amax=0.2):
+    """SAR stands for “stop and reverse,” which is the actual indicator used in 
+    the system.
+    SAR trails price as the trend extends over time. The indicator is below 
+    prices when prices are rising and above prices when prices are falling.
+    In this regard, the indicator stops and reverses when the price trend 
+    reverses and breaks above or below the indicator."""
+    cdef int length = highs.shape[0]
+    # Starting values
+    cdef double sig0, sig1, xpt0
+    # next values
+    cdef double xpt1, af0, af1
+    # auxilary variables
+    cdef double lmax, lmin
+    # result: sar
+    cdef np.ndarray[np.float64_t, ndim= 1] _sar = np.empty_like(highs)
+
+    sig0 = 1
+    xpt0 = highs[0]
+    af0 = af
+
+    highs_arr = np.asarray(highs)
+    lows_arr = np.asarray(lows)
+
+    _sar[0] = lows[0] - np.std(highs_arr - lows_arr, ddof=1)
+
+    for i in range(1, length):
+        sig1, xpt1, af1 = sig0, xpt0, af0
+
+        lmin = min(lows[i - 1], lows[i])
+        lmax = max(highs[i - 1], highs[i])
+
+        if sig1:
+            sig0 = lows[i] > _sar[i-1]
+            xpt0 = max(lmax, xpt1)
+        else:
+            sig0 = highs[i] >= _sar[i-1]
+            xpt0 = min(lmin, xpt1)
+
+        if sig0 == sig1:
+            sari = _sar[i-1] + (xpt1 - _sar[i-1]) * af1
+            af0 = min(amax, af1 + af)
+
+            if sig0:
+                af0 = af0 if xpt0 > xpt1 else af1
+                sari = min(sari, lmin)
+            else:
+                af0 = af0 if xpt0 < xpt1 else af1
+                sari = max(sari, lmax)
+        else:
+            af0 = af
+            sari = xpt0
+
+        _sar[i] = sari
+
+    return _sar
