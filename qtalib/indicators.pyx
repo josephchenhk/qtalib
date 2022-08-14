@@ -186,29 +186,23 @@ cpdef np.ndarray[np.float64_t, ndim= 1] SAR(
     sig0 = 1
     xpt0 = highs[0]
     af0 = af
-
     highs_arr = np.asarray(highs)
     lows_arr = np.asarray(lows)
-
     _sar[0] = lows[0] - np.std(highs_arr - lows_arr, ddof=1)
 
     for i in range(1, length):
         sig1, xpt1, af1 = sig0, xpt0, af0
-
         lmin = min(lows[i - 1], lows[i])
         lmax = max(highs[i - 1], highs[i])
-
         if sig1:
             sig0 = lows[i] > _sar[i-1]
             xpt0 = max(lmax, xpt1)
         else:
             sig0 = highs[i] >= _sar[i-1]
             xpt0 = min(lmin, xpt1)
-
         if sig0 == sig1:
             sari = _sar[i-1] + (xpt1 - _sar[i-1]) * af1
             af0 = min(amax, af1 + af)
-
             if sig0:
                 af0 = af0 if xpt0 > xpt1 else af1
                 sari = min(sari, lmin)
@@ -218,7 +212,5 @@ cpdef np.ndarray[np.float64_t, ndim= 1] SAR(
         else:
             af0 = af
             sari = xpt0
-
         _sar[i] = sari
-
     return _sar
