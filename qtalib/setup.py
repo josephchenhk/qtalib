@@ -21,7 +21,8 @@ import numpy
 
 ext_modules = [
     Extension("indicators", ["indicators.pyx"],
-              include_dirs=[numpy.get_include()]),
+              include_dirs=[numpy.get_include()],
+              language="c++"),
     Extension("util", ["util.pyx"],
               include_dirs=[numpy.get_include()])
 ]
