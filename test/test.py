@@ -167,7 +167,6 @@ ohlc = pd.DataFrame({
 # print(TA.SAR(ohlc, 0.02, 0.2))
 # print(ta.SAR(highs, lows, 0.02, 0.2))
 
-# print(TA.ST(ohlc, 0.02, 0.2))
 N = 10
 super_trend = {}
 py_super_trend = {}
