@@ -17,7 +17,10 @@ this file. If not, please write to: josephchenhk@gmail.com
 from util import shift
 import numpy as np
 cimport numpy as np
-# from libc.math cimport sqrt
+from libcpp.map cimport map as cppmap
+from libcpp.string cimport string
+from libcpp.vector cimport vector
+from libc.math cimport sqrt as csqrt
 # from libc.stdlib cimport malloc, free
 # from cpython cimport array
 
@@ -167,12 +170,20 @@ cpdef np.ndarray[np.float64_t, ndim= 1] SAR(
         double[:] lows,
         double af=0.02,
         double amax=0.2):
-    """SAR stands for “stop and reverse,” which is the actual indicator used in 
+    """
+    SAR stands for “stop and reverse,” which is the actual indicator used in 
     the system.
     SAR trails price as the trend extends over time. The indicator is below 
     prices when prices are rising and above prices when prices are falling.
     In this regard, the indicator stops and reverses when the price trend 
-    reverses and breaks above or below the indicator."""
+    reverses and breaks above or below the indicator.
+    
+    :param highs: np.array
+    :param lows: np.array
+    :param af: float
+    :param amax: float
+    :return: sar: np.array
+    """
     cdef int length = highs.shape[0]
     # Starting values
     cdef double sig0, sig1, xpt0
@@ -214,3 +225,71 @@ cpdef np.ndarray[np.float64_t, ndim= 1] SAR(
             sari = xpt0
         _sar[i] = sari
     return _sar
+
+cpdef cppmap[string, double] ST(
+        cppmap[string, double] super_trend,
+        double[:] highs,
+        double[:] lows,
+        double[:] closes,
+        int timeperiod=10,
+        double band_multiple=3.0):
+    """
+    SuperTrend
+    ATR channel, with mid/up/dn lines
+        - close falls below dn, sell
+        - close climbs above up, buy
+    Ref1: https://cn.tradingview.com/script/r6dAP7yi/
+    Ref2: https://zhuanlan.zhihu.com/p/138461317
+    
+    :param super_trend: Dict[str, float]
+    :param highs: np.array
+    :param lows: np.array
+    :param closes: np.array
+    :param timeperiod: int
+    :param band_multiple: float
+    :return: super_trend: Dict[str, float]
+    """
+    highs_arr = np.asarray(highs)
+    lows_arr = np.asarray(lows)
+    closes_arr = np.asarray(closes)
+    cdef double trend, dn, dn1, up, up1
+    cdef np.ndarray[np.float64_t, ndim=1] mids = (highs_arr + lows_arr) * 0.5
+    cdef np.ndarray[np.float64_t, ndim=1] _atr = ATR(
+        highs=highs_arr,
+        lows=lows_arr,
+        closes=closes_arr,
+        period=timeperiod
+    )
+    dn = mids[-1] - band_multiple * _atr[-1]
+    up = mids[-1] + band_multiple * _atr[-1]
+    if super_trend.size() > 0:
+        trend = super_trend["trend"]
+        dn1 = super_trend["dn"]
+        up1 = super_trend["up"]
+        if closes[-2] > dn1:
+            dn = max(dn, dn1)
+        if closes[-2] < up1:
+            up = min(up, up1)
+    else:
+        n = len(closes_arr) / 3
+        if closes_arr[:n].mean() < closes_arr[n:2 * n].mean() < closes_arr[2 * n:].mean():
+            trend = 1.0
+        else:
+            trend = -1.0
+        dn1 = -float("inf")
+        up1 = float("inf")
+
+    if trend == -1.0 and closes[-1] > up1:
+        trend = 1.0
+        dn = mids[-1] - band_multiple * _atr[-1]
+        up = mids[-1] + band_multiple * _atr[-1]
+    elif trend == 1.0 and closes[-1] < dn1:
+        trend = -1.0
+        dn = mids[-1] - band_multiple * _atr[-1]
+        up = mids[-1] + band_multiple * _atr[-1]
+    super_trend["mid"] = mids[-1]
+    super_trend["ATR"] = _atr[-1]
+    super_trend["up"] = up
+    super_trend["dn"] = dn
+    super_trend["trend"] = trend
+    return super_trend
