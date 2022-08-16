@@ -8,7 +8,7 @@
     <img src ="https://img.shields.io/badge/license-JXW-orange"/>
 </p>
 
-**Latest update on 2022-08-10**
+**Latest update on 2022-08-16**
 
 Technical indicators implemented in Cython/C. This is supposed to be a
 faster technical analysis library with perfect integration to Python.
@@ -26,6 +26,8 @@ faster technical analysis library with perfect integration to Python.
 * Absolute True Range (ATR)
 
 * (Parabolic) Stop and Reverse (SAR)
+
+* Super Trend (ST)
 
 ## Installation
 
