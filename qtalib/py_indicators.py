@@ -15,11 +15,26 @@ this file. If not, please write to: josephchenhk@gmail.com
 """
 
 from typing import Dict, Union, List, Any
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
 from finta import TA
+
+
+def sma(data_set: List[float], periods: int = 3) -> np.array:
+    # weights = np.ones(periods) / periods
+    # return np.convolve(data_set, weights, mode='valid')
+    assert periods <= len(data_set), (
+        f"periods {periods} can not be larger than the length of the input "
+        "data_set!"
+    )
+    data_sma = np.zeros(len(data_set) - periods + 1)
+    for i, idx in enumerate(range(periods, len(data_set) + 1)):
+        data = data_set[idx - periods: idx]
+        data = data[~np.isnan(data)]
+        if len(data) > 0:
+            data_sma[i] = data.mean()
+    return data_sma
 
 
 def offset_resample_ts(
@@ -140,3 +155,66 @@ def ST(
     super_trend["dn"] = dn
     super_trend["trend"] = trend
     return super_trend
+
+
+def TSV(
+        close: List[float],
+        volume: List[float],
+        tsv_length: int = 13,
+        tsv_ma_length: int = 7,
+        tsv_bands_length: int = 44,
+        tsv_lookback: int = 60,
+        tsv_resample_interval: int = 1,
+        tsv_offset: int = 0
+) -> Dict[str, Any]:
+    """
+    Time Segmented Volume
+    Ref1: https://tw.tradingview.com/script/fmuLoK0d-time-segmented-volume-bands/?utm_source=amp-version&sp_amp_linker=1*zznimo*amp_id*YW1wLWVhdFVadXpBcjRIczRCMWpfN1l6VUE.
+    """
+    close = offset_resample_ts(
+        ts=close,
+        resample_interval=tsv_resample_interval,
+        resample_method="last",
+        offset=tsv_offset
+    )
+    volume = offset_resample_ts(
+        ts=volume,
+        resample_interval=tsv_resample_interval,
+        resample_method="sum",
+        offset=tsv_offset
+    )
+
+    # LOGIC - TSV
+    t = np.diff(close) * volume[1:]
+    t = np.convolve(t, np.ones(tsv_length, dtype=int), 'valid')
+    m = sma(t, periods=tsv_ma_length)
+
+    # LOGIC - Inflow / outflow
+    tp = t.copy()
+    tp[tp <= 0] = 0
+    tn = t.copy()
+    tn[tn >= 0] = 0
+    inflow = np.convolve(tp, np.ones(tsv_lookback, dtype=int), 'valid')
+    outflow = np.convolve(tn, np.ones(tsv_lookback, dtype=int),
+                          'valid') * -1
+    difference = inflow - outflow
+    total = inflow + outflow
+    inflow_p = inflow / total * 100
+    outflow_p = outflow / total * 100
+
+    # LOGIC - AVG bands
+    tpna = t.copy()
+    tpna[tpna <= 0] = np.nan
+    tnna = t.copy()
+    tnna[tnna >= 0] = np.nan
+    avg_inflow = sma(tpna, periods=tsv_bands_length)
+    avg_outflow = sma(tnna, periods=tsv_bands_length)
+    return {
+        "t": t[-1],
+        "m": m[-1],
+        "avg_inflow": avg_inflow[-1],
+        "avg_outflow": avg_outflow[-1],
+        "difference": difference[-1],
+        "inflow_p": inflow_p[-1],
+        "outflow_p": outflow_p[-1]
+    }
