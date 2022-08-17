@@ -28,23 +28,34 @@ from libc.math cimport sqrt as csqrt
 cpdef np.ndarray[np.float64_t, ndim= 1] SMA(double[:] closes, int period):
     """
     Simple Moving Average function
-    @param closes: list of closing candle prices
-    @param period: period to calculate for
+    Note: this method skips nan values
+    
+    @param closes: np.array, list of closing candle prices
+    @param period: int, period to calculate for
+    @return _sma: np.array
     """
     cdef int length = closes.shape[0]
     cdef np.ndarray[np.float64_t, ndim= 1] result = np.zeros(length - period + 1,
                                                               dtype=np.float64)
     cdef double total
     cdef int i
+    cdef int eff_period = 0
     for i in range(period - 1, length):
         if i == period - 1:
             total = 0
             for j in range(i - period + 1, i + 1):
-                total += closes[j]
+                if not np.isnan(closes[j]):
+                    total += closes[j]
+                    eff_period += 1
+
         else:
-            total += closes[i]
-            total -= closes[i - period]
-        result[i - period + 1] = total / period
+            if not np.isnan(closes[i]):
+                total += closes[i]
+                eff_period += 1
+            if not np.isnan(closes[i - period]):
+                total -= closes[i - period]
+                eff_period -= 1
+        result[i - period + 1] = total / eff_period
     return result
 
 cpdef np.ndarray[np.float64_t, ndim= 1] EMA(double[:] closes, int period):
@@ -52,8 +63,10 @@ cpdef np.ndarray[np.float64_t, ndim= 1] EMA(double[:] closes, int period):
     Exponential Moving Average function
     Ref1: https://github.com/peerchemist/finta/blob/master/finta/finta.py
     Ref2: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.ewm.html
-    @param closes: list of closing candle prices
-    @param period: period to calculate for
+    
+    @param closes: np.array, list of closing candle prices
+    @param period: int, period to calculate for
+    @return _ema: np.array
     """
     cdef int length = closes.shape[0]
     cdef np.ndarray[np.float64_t, ndim= 1] result = np.zeros(length,
@@ -293,3 +306,64 @@ cpdef cppmap[string, double] ST(
     super_trend["dn"] = dn
     super_trend["trend"] = trend
     return super_trend
+
+
+cpdef cppmap[string, double] TSV(
+        double[:] closes,
+        long[:] volumes,
+        int tsv_length=13,
+        int tsv_ma_length=7,
+        int tsv_bands_length=44,
+        int tsv_lookback=60):
+    """
+    Time Segmented Volume
+    Ref1: https://tw.tradingview.com/script/fmuLoK0d-time-segmented-volume-bands/?utm_source=amp-version&sp_amp_linker=1*zznimo*amp_id*YW1wLWVhdFVadXpBcjRIczRCMWpfN1l6VUE.
+    
+    :param closes: np.array
+    :param volumes: np.array
+    :param tsv_length: int
+    :param tsv_ma_length: int
+    :param tsv_bands_length: int
+    :param tsv_lookback: int
+    :return _tsv: Dict[str, float]
+    """
+    closes_arr = np.asarray(closes)
+    volumes_arr = np.asarray(volumes)
+    # LOGIC - TSV
+    cdef np.ndarray[np.float64_t, ndim=1] t, m, tp, tn, tpna, tnna
+    cdef np.ndarray[np.float64_t, ndim=1] inflow, outflow, difference, total
+    cdef np.ndarray[np.float64_t, ndim=1] inflow_p, outflow_p, avg_inflow, avg_outflow
+    cdef cppmap[string, double] _tsv
+    t = np.diff(closes_arr) * volumes_arr[1:]
+    t = np.convolve(t, np.ones(tsv_length, dtype=int), 'valid')
+    m = SMA(t, tsv_ma_length)
+
+    # # LOGIC - Inflow / outflow
+    tp = t.copy()
+    tp[tp <= 0] = 0
+    tn = t.copy()
+    tn[tn >= 0] = 0
+    inflow = np.convolve(tp, np.ones(tsv_lookback, dtype=int),
+                         'valid')
+    outflow = np.convolve(tn, np.ones(tsv_lookback, dtype=int),
+                          'valid') * -1
+    difference = inflow - outflow
+    total = inflow + outflow
+    inflow_p = inflow / total * 100
+    outflow_p = outflow / total * 100
+
+    # LOGIC - AVG bands
+    tpna = t.copy()
+    tpna[tpna <= 0] = np.nan
+    tnna = t.copy()
+    tnna[tnna >= 0] = np.nan
+    avg_inflow = SMA(tpna, tsv_bands_length)
+    avg_outflow = SMA(tnna, tsv_bands_length)
+    _tsv["t"] = t[-1]
+    _tsv["m"] = m[-1]
+    _tsv["avg_inflow"] = avg_inflow[-1]
+    _tsv["avg_outflow"] = avg_outflow[-1]
+    _tsv["difference"] = difference[-1]
+    _tsv["inflow_p"] = inflow_p[-1]
+    _tsv["outflow_p"] = outflow_p[-1]
+    return _tsv
