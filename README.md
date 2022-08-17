@@ -29,6 +29,8 @@ faster technical analysis library with perfect integration to Python.
 
 * Super Trend (ST)
 
+* Time Segmented Volume (TSV)
+
 ## Installation
 
 You may run the folllowing command to install QTalib immediately:
