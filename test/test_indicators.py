@@ -144,3 +144,28 @@ class TestFunctions(unittest.TestCase):
             expected = py_super_trend
             actual = super_trend_fmt
             self.assertEqual(expected, actual)
+
+    def testTSV(self):
+        self.prepare_test_data("test_data2")
+        closes = self.closes
+        volumes = self.volumes
+        expected = pta.TSV(
+            close=closes,
+            volume=volumes,
+            tsv_length=13,
+            tsv_ma_length=7,
+            tsv_bands_length=44,
+            tsv_lookback=60,
+            tsv_resample_interval=1,
+            tsv_offset=0
+        )
+        actual = ta.TSV(
+            closes,
+            volumes,
+            tsv_length=13,
+            tsv_ma_length=7,
+            tsv_bands_length=44,
+            tsv_lookback=60
+        )
+        actual = {k.decode("utf-8"): v for k, v in actual.items()}
+        self.assertEqual(expected, actual)

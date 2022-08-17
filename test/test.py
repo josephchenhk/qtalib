@@ -53,30 +53,50 @@ volumes = ohlcv["volume"].to_numpy()
 # print(TA.SAR(ohlc, 0.02, 0.2))
 # print(ta.SAR(highs, lows, 0.02, 0.2))
 
-N = 10
-super_trend = {}
-py_super_trend = {}
-for i in range(N):
-    py_super_trend = pta.ST(
-        py_super_trend,
-        highs[i:i + N],
-        lows[i:i + N],
-        closes[i:i + N],
-        10,
-        3.0,
-        1,
-        0
-    )
-    super_trend = ta.ST(
-        super_trend,
-        highs[i:i + N],
-        lows[i:i + N],
-        closes[i:i + N],
-        10,
-        3.0
-    )
-    super_trend_fmt = {k.decode("utf-8"): v for k, v in super_trend.items()}
-    check = py_super_trend == super_trend_fmt
-    print(f"{i} {check}\n\t{py_super_trend}\n\t{super_trend_fmt}")
+# N = 10
+# super_trend = {}
+# py_super_trend = {}
+# for i in range(N):
+#     py_super_trend = pta.ST(
+#         py_super_trend,
+#         highs[i:i + N],
+#         lows[i:i + N],
+#         closes[i:i + N],
+#         10,
+#         3.0,
+#         1,
+#         0
+#     )
+#     super_trend = ta.ST(
+#         super_trend,
+#         highs[i:i + N],
+#         lows[i:i + N],
+#         closes[i:i + N],
+#         10,
+#         3.0
+#     )
+#     super_trend_fmt = {k.decode("utf-8"): v for k, v in super_trend.items()}
+#     check = py_super_trend == super_trend_fmt
+#     print(f"{i} {check}\n\t{py_super_trend}\n\t{super_trend_fmt}")
+
+expected = pta.TSV(
+    close=closes,
+    volume=volumes,
+    tsv_length=13,
+    tsv_ma_length=7,
+    tsv_bands_length=44,
+    tsv_lookback=60,
+    tsv_resample_interval=1,
+    tsv_offset=0
+)
+actual = ta.TSV(
+    closes,
+    volumes,
+    tsv_length=13,
+    tsv_ma_length=7,
+    tsv_bands_length=44,
+    tsv_lookback=60
+)
+
 
 print()
