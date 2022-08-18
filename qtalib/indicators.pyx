@@ -14,15 +14,15 @@ You should have received a copy of the JXW license with
 this file. If not, please write to: josephchenhk@gmail.com
 """
 
-from util import shift
 import numpy as np
 cimport numpy as np
 from libcpp.map cimport map as cppmap
 from libcpp.string cimport string
-from libcpp.vector cimport vector
-from libc.math cimport sqrt as csqrt
+# from libcpp.vector cimport vector
+# from libc.math cimport sqrt as csqrt
 # from libc.stdlib cimport malloc, free
 # from cpython cimport array
+from qtalib.util import shift
 
 
 cpdef np.ndarray[np.float64_t, ndim= 1] SMA(double[:] closes, int period):
@@ -55,7 +55,10 @@ cpdef np.ndarray[np.float64_t, ndim= 1] SMA(double[:] closes, int period):
             if not np.isnan(closes[i - period]):
                 total -= closes[i - period]
                 eff_period -= 1
-        result[i - period + 1] = total / eff_period
+        if eff_period == 0:
+            result[i - period + 1] = np.nan
+        else:
+            result[i - period + 1] = total / eff_period
     return result
 
 cpdef np.ndarray[np.float64_t, ndim= 1] EMA(double[:] closes, int period):
