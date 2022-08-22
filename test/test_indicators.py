@@ -34,17 +34,12 @@ class TestFunctions(unittest.TestCase):
 
     def prepare_test_data(self, dataset: str):
         ohlcv = pd.read_csv(f"{dataset}.csv")
-        opens = ohlcv["open"].to_numpy()
-        highs = ohlcv["high"].to_numpy()
-        lows = ohlcv["low"].to_numpy()
-        closes = ohlcv["close"].to_numpy()
-        volumes = ohlcv["volume"].to_numpy()
         self.ohlcv = ohlcv
-        self.opens = opens
-        self.highs = highs
-        self.lows = lows
-        self.closes = closes
-        self.volumes = volumes
+        self.opens = ohlcv["open"].to_numpy()
+        self.highs = ohlcv["high"].to_numpy()
+        self.lows = ohlcv["low"].to_numpy()
+        self.closes = ohlcv["close"].to_numpy()
+        self.volumes = ohlcv["volume"].to_numpy()
 
     def testSMA(self):
         self.prepare_test_data("test_data1")
