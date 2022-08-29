@@ -80,7 +80,8 @@ def ST(
         trend_resample_interval: int = 1,
         trend_offset: int = 0
 ) -> Dict[str, Any]:
-    """SuperTrend
+    """
+    SuperTrend
     ATR channel, with mid/up/dn lines
      - close falls below dn, sell
      - close climbs above up, buy
@@ -218,3 +219,31 @@ def TSV(
         "inflow_p": inflow_p[-1],
         "outflow_p": outflow_p[-1]
     }
+
+def SS(
+        data: List[float],
+        length: int
+) -> List[float]:
+    """
+    Super Smoother（John Ehlers）
+    Ref: https://zhuanlan.zhihu.com/p/557480350
+
+    :param data:
+    :param length:
+    :return: List[float], Super smoothed price data
+    """
+    ssf = []
+    for i, _ in enumerate(data):
+        if i < 2:
+            ssf.append(0)
+        else:
+            arg = 1.414 * 3.14159 / length
+            a_1 = np.exp(-arg)
+            b_1 = 2 * a_1 * np.cos(4.44 / float(length))
+            c_2 = b_1
+            c_3 = -a_1 * a_1
+            c_1 = 1 - c_2 - c_3
+            ssf.append(
+                c_1 * (data[i] + data[i - 1]) / 2 + c_2 * ssf[i - 1] + c_3 *
+                ssf[i - 2])
+    return ssf
