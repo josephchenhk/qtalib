@@ -33,13 +33,14 @@ setup(
     author_email='josephchenhk@gmail.com',
     include_package_data=True,
     packages=find_packages(),
-    # package_data={"": [
-    # "*.ico",
-    # "*.ini",
-    # "*.dll",
-    # "*.so",
-    # "*.pyd",
-    # ]},
+    package_data={"": [
+        "*.ico",
+        "*.ini",
+        "*.dll",
+        "*.so",
+        "*.pyd",
+        "*.pyx"
+    ]},
     platforms='any',
     url='',
     entry_points={
