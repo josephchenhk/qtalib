@@ -33,7 +33,7 @@ setup(
     author_email='josephchenhk@gmail.com',
     include_package_data=True,
     packages=find_packages(),
-    package_data={"": [
+    package_data={"qtalib": [
         "*.ico",
         "*.ini",
         "*.dll",
