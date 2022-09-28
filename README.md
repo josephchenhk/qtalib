@@ -40,11 +40,11 @@ You may run the folllowing command to install QTalib immediately:
 >> conda create -n qtalib python=3.8
 >> conda activate qtalib
 
-# Install stable version from pip (currently version 0.0.1)
->> pip install qtalib
+# (Recommend) Install latest version from github 
+>> pip install git+https://github.com/josephchenhk/qtalib@main
 
-# Alternatively, install latest version from github 
->> pip install git+https://github.com/josephchenhk/qtalib@master
+# Alternatively, install stable version from pip (currently version 0.0.1)
+>> pip install qtalib
 ```
 
 ## Usage
