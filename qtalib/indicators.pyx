@@ -88,6 +88,49 @@ cpdef np.ndarray[np.float64_t, ndim= 1] EMA(double[:] closes, int period):
             f2 += w**(i + 1)
     return result
 
+cpdef np.ndarray[np.float64_t, ndim= 1] MSTD(double[:] closes, int period):
+    """
+    Moving Standard Deviation function
+    Ref: https://www.zaner.com/3.0/education/technicalstudies/MSD.asp#:~:text=The%20moving%20standard%20deviation%20is,moving%20average%20of%20the%20prices.
+    The moving standard deviation is a measure of market volatility. It makes no
+    predictions of market direction, but it may serve as a confirming indicator. 
+    You specify the number of periods to use, and the study computes the 
+    standard deviation of prices from the moving average of the prices.
+    Note: this method skips nan values
+
+    @param closes: np.array, list of closing candle prices
+    @param period: int, period to calculate for
+    @return _mstd: np.array
+    """
+    cdef int length = closes.shape[0]
+    cdef np.ndarray[np.float64_t, ndim= 1] _sma
+    cdef np.ndarray[np.float64_t, ndim= 1] result = np.zeros(length - period + 1,
+                                                              dtype=np.float64)
+    cdef double total
+    cdef int i
+    cdef int eff_period = 0
+    _sma = SMA(closes, period)
+    for i in range(period - 1, length):
+        if i == period - 1:
+            total = 0
+            for j in range(i - period + 1, i + 1):
+                if not np.isnan(closes[j]):
+                    total += (closes[j] - _sma[i - period + 1])**2
+                    eff_period += 1
+
+        else:
+            if not np.isnan(closes[i]):
+                total += (closes[i] - _sma[i - period + 1])**2
+                eff_period += 1
+            if not np.isnan(closes[i - period]):
+                total -= (closes[i - period] - _sma[i - period])**2
+                eff_period -= 1
+        if eff_period == 0:
+            result[i - period + 1] = np.nan
+        else:
+            result[i - period + 1] = total / eff_period
+    return np.sqrt(result)
+
 cpdef np.ndarray[np.float64_t, ndim= 2] MACD(
         double[:] closes,
         int period_fast=12,
