@@ -359,7 +359,6 @@ cpdef cppmap[string, double] TSV(
         long[:] volumes,
         int tsv_length=13,
         int tsv_ma_length=7,
-        int tsv_bands_length=44,
         int tsv_lookback=60):
     """
     Time Segmented Volume
@@ -403,8 +402,8 @@ cpdef cppmap[string, double] TSV(
     tpna[tpna <= 0] = np.nan
     tnna = t.copy()
     tnna[tnna >= 0] = np.nan
-    avg_inflow = SMA(tpna, tsv_bands_length)
-    avg_outflow = SMA(tnna, tsv_bands_length)
+    avg_inflow = SMA(tpna, tsv_lookback)
+    avg_outflow = SMA(tnna, tsv_lookback)
     _tsv["t"] = t[-1]
     _tsv["m"] = m[-1]
     _tsv["avg_inflow"] = avg_inflow[-1]
