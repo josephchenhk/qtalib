@@ -129,9 +129,9 @@ def ST(
         trend = super_trend.get("trend")
         dn1 = super_trend.get("dn")
         up1 = super_trend.get("up")
-        if close[-1] > dn1:
+        if close[-2] > dn1:
             dn = max(dn, dn1)
-        if close[-1] < up1:
+        if close[-2] < up1:
             up = min(up, up1)
     else:
         n = len(close) // 3

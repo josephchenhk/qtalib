@@ -325,9 +325,9 @@ cpdef cppmap[string, double] ST(
         trend = super_trend["trend"]
         dn1 = super_trend["dn"]
         up1 = super_trend["up"]
-        if closes[-1] > dn1:
+        if closes[-2] > dn1:
             dn = max(dn, dn1)
-        if closes[-1] < up1:
+        if closes[-2] < up1:
             up = min(up, up1)
     else:
         n = len(closes_arr) / 3
