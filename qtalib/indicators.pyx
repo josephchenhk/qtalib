@@ -354,7 +354,7 @@ cpdef cppmap[string, double] ST(
     return super_trend
 
 
-cpdef cppmap[string, double] TSV(
+cpdef dict TSV(
         double[:] closes,
         long[:] volumes,
         int tsv_length=13,
@@ -378,7 +378,7 @@ cpdef cppmap[string, double] TSV(
     cdef np.ndarray[np.float64_t, ndim=1] t, m, tp, tn, tpna, tnna
     cdef np.ndarray[np.float64_t, ndim=1] inflow, outflow, difference, total
     cdef np.ndarray[np.float64_t, ndim=1] inflow_p, outflow_p, avg_inflow, avg_outflow
-    cdef cppmap[string, double] _tsv
+    cdef dict _tsv = {}
     t = np.diff(closes_arr) * volumes_arr[1:]
     t = np.convolve(t, np.ones(tsv_length, dtype=int), 'valid')
     m = SMA(t, tsv_ma_length)
@@ -411,4 +411,11 @@ cpdef cppmap[string, double] TSV(
     _tsv["difference"] = difference[-1]
     _tsv["inflow_p"] = inflow_p[-1]
     _tsv["outflow_p"] = outflow_p[-1]
+    _tsv["t_ts"] = t[:]
+    _tsv["m_ts"] = m[:]
+    _tsv["avg_inflow_ts"] = avg_inflow[:]
+    _tsv["avg_outflow_ts"] = avg_outflow[:]
+    _tsv["difference_ts"] = difference[:]
+    _tsv["inflow_p_ts"] = inflow_p[:]
+    _tsv["outflow_p_ts"] = outflow_p[:]
     return _tsv
