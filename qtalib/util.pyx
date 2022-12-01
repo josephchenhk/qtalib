@@ -21,7 +21,8 @@ cimport numpy as np
 cpdef np.ndarray[np.float64_t, ndim = 1] shift(
         double[:] arr,
         int num,
-        double fill_value=np.nan):
+        double fill_value=np.nan
+):
     """
     Shift a numpy array
     preallocate empty array and assign slice by chrisaycock
@@ -37,3 +38,24 @@ cpdef np.ndarray[np.float64_t, ndim = 1] shift(
     else:
         result[:] = arr
     return result
+
+cpdef np.ndarray[np.float64_t, ndim = 1] ewm(
+        double[:] data,
+        int window
+):
+    """Exponential Weighted Moving Average"""
+    data_arr = np.array(data)
+    alpha = 2 /(window + 1.0)
+    alpha_rev = 1-alpha
+    n = data.shape[0]
+
+    pows = alpha_rev**(np.arange(n+1))
+
+    scale_arr = 1/pows[:-1]
+    offset = data[0]*pows[1:]
+    pw0 = alpha*alpha_rev**(n-1)
+
+    mult = data_arr*pw0*scale_arr
+    cumsums = mult.cumsum()
+    out = offset + cumsums*scale_arr[::-1]
+    return out

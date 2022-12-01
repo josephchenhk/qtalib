@@ -20,7 +20,7 @@ import pyximport
 
 import numpy as np
 import pandas as pd
-# from finta import TA
+from finta import TA
 
 # Ref: https://github.com/cython/cython/issues/1725
 numpy_path = np.get_include()
@@ -28,7 +28,7 @@ os.environ['CFLAGS'] = "-I" + numpy_path
 pyximport.install(setup_args={"include_dirs": numpy_path})
 
 
-ohlcv = pd.read_csv("test_data2.csv")
+ohlcv = pd.read_csv("test/test_data2.csv")
 opens = ohlcv["open"].to_numpy()
 highs = ohlcv["high"].to_numpy()
 lows = ohlcv["low"].to_numpy()
@@ -79,24 +79,26 @@ volumes = ohlcv["volume"].to_numpy()
 #     check = py_super_trend == super_trend_fmt
 #     print(f"{i} {check}\n\t{py_super_trend}\n\t{super_trend_fmt}")
 
-expected = pta.TSV(
-    close=closes,
-    volume=volumes,
-    tsv_length=13,
-    tsv_ma_length=7,
-    tsv_bands_length=44,
-    tsv_lookback=60,
-    tsv_resample_interval=1,
-    tsv_offset=0
-)
-actual = ta.TSV(
-    closes,
-    volumes,
-    tsv_length=13,
-    tsv_ma_length=7,
-    tsv_bands_length=44,
-    tsv_lookback=60
-)
+# expected = pta.TSV(
+#     close=closes,
+#     volume=volumes,
+#     tsv_length=13,
+#     tsv_ma_length=7,
+#     tsv_bands_length=44,
+#     tsv_lookback=60,
+#     tsv_resample_interval=1,
+#     tsv_offset=0
+# )
+# actual = ta.TSV(
+#     closes,
+#     volumes,
+#     tsv_length=13,
+#     tsv_ma_length=7,
+#     tsv_bands_length=44,
+#     tsv_lookback=60
+# )
 
-
-print()
+print(np.allclose(
+    np.array(TA.RSI(ohlcv, 14).dropna()),
+    ta.RSI(closes, 14)
+))
