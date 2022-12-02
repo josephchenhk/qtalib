@@ -213,7 +213,13 @@ cpdef np.ndarray[np.float64_t, ndim= 1] RSI(
     # window as (2 * period - 1) here:
     _gain = EMA(up, 2 * period - 1)
     _loss = EMA(abs(down), 2 * period - 1)
-    RS = _gain / _loss
+    # Avoid dividing by zeros
+    RS = np.divide(
+        _gain,
+        _loss,
+        out=np.inf * np.ones_like(_gain),
+        where=_loss != 0
+    )
     return 100 - (100 / (1 + RS))
 
 cpdef np.ndarray[np.float64_t, ndim= 1] TR(
