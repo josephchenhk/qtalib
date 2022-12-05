@@ -460,3 +460,27 @@ cpdef dict TSV(
     _tsv["inflow_p_ts"] = inflow_p[:]
     _tsv["outflow_p_ts"] = outflow_p[:]
     return _tsv
+
+cpdef np.ndarray[np.float64_t, ndim= 1] OBV(
+        double[:] closes,
+        long[:] volumes
+):
+    """
+    On Balance Volume (OBV) measures buying and selling pressure as a cumulative 
+    indicator that adds volume on up days and subtracts volume on down days.
+    OBV was developed by Joe Granville and introduced in his 1963 book, 
+    Granville's New Key to Stock Market Profits.
+    It was one of the first indicators to measure positive and negative volume 
+    flow.Chartists can look for divergences between OBV and price to predict 
+    price movements or use OBV to confirm price trends.
+    source: https://en.wikipedia.org/wiki/On-balance_volume#The_formula
+    """
+    cpdef int n = len(closes)
+    cpdef np.ndarray[np.float64_t, ndim= 1] _obv = np.zeros(n)
+    cpdef int i
+    for i in range(1, n):
+        if closes[i] < closes[i-1]:
+            _obv[i] = -volumes[i]
+        elif closes[i] > closes[i-1]:
+            _obv[i] = volumes[i]
+    return _obv.cumsum()

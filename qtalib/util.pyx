@@ -39,6 +39,51 @@ cpdef np.ndarray[np.float64_t, ndim = 1] shift(
         result[:] = arr
     return result
 
+################################################################################
+#                              FFILL and BFILL                                 #
+# Ref: https://stackoverflow.com/questions/41190852/most-efficient-way-to-forward-fill-nan-values-in-numpy-array
+################################################################################
+cpdef np.ndarray[np.float64_t, ndim = 2] ffill_2d(double[:,:] arr):
+    cdef np.ndarray[np.float64_t, ndim = 2] out
+    mask = np.isnan(arr)
+    idx = np.where(~mask, np.arange(mask.shape[1]), 0)
+    np.maximum.accumulate(idx, axis=1, out=idx)
+    out = np.asarray(arr)[np.arange(idx.shape[0])[:,None], idx]
+    return out
+
+cpdef np.ndarray[np.float64_t, ndim = 1] ffill_1d(double[:] arr):
+    cdef np.ndarray[np.float64_t, ndim = 1] out
+    mask = np.isnan(arr)
+    idx = np.where(~mask, np.arange(mask.size), 0)
+    np.maximum.accumulate(idx, axis=0, out=idx)
+    out = np.asarray(arr)[idx]
+    return out
+
+def ffill(arr: np.ndarray) -> np.ndarray:
+    shape = np.asarray(arr).shape
+    if len(shape) == 1:
+        return ffill_1d(arr)
+    elif len(shape) == 2:
+        return ffill_2d(arr)
+    else:
+        raise ValueError("Array dimension is NOT allowed.")
+
+cpdef np.ndarray[np.float64_t, ndim = 2] bfill_2d(double[:,:] arr):
+    return ffill(np.asarray(arr[:, ::-1]))[:, ::-1]
+
+cpdef np.ndarray[np.float64_t, ndim = 1] bfill_1d(double[:] arr):
+    return ffill(np.asarray(arr[::-1]))[::-1]
+################################################################################
+
+def bfill(arr: np.ndarray) -> np.ndarray:
+    shape = np.asarray(arr).shape
+    if len(shape) == 1:
+        return bfill_1d(arr)
+    elif len(shape) == 2:
+        return bfill_2d(arr)
+    else:
+        raise ValueError("Array dimension is NOT allowed.")
+
 cpdef np.ndarray[np.float64_t, ndim = 1] ewm(
         double[:] data,
         int window

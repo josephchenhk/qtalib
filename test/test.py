@@ -98,7 +98,14 @@ volumes = ohlcv["volume"].to_numpy()
 #     tsv_lookback=60
 # )
 
+# print(np.allclose(
+#     np.array(TA.RSI(ohlcv, 14).dropna()),
+#     ta.RSI(closes, 14)
+# ))
+
+from qtalib.util import ffill
 print(np.allclose(
-    np.array(TA.RSI(ohlcv, 14).dropna()),
-    ta.RSI(closes, 14)
+    ffill(np.array(TA.OBV(ohlcv)))[1:],
+    ta.OBV(closes, volumes)[1:]
 ))
+
