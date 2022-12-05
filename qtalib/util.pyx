@@ -73,7 +73,6 @@ cpdef np.ndarray[np.float64_t, ndim = 2] bfill_2d(double[:,:] arr):
 
 cpdef np.ndarray[np.float64_t, ndim = 1] bfill_1d(double[:] arr):
     return ffill(np.asarray(arr[::-1]))[::-1]
-################################################################################
 
 def bfill(arr: np.ndarray) -> np.ndarray:
     shape = np.asarray(arr).shape
@@ -83,6 +82,7 @@ def bfill(arr: np.ndarray) -> np.ndarray:
         return bfill_2d(arr)
     else:
         raise ValueError("Array dimension is NOT allowed.")
+################################################################################
 
 cpdef np.ndarray[np.float64_t, ndim = 1] ewm(
         double[:] data,
