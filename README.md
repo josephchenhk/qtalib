@@ -8,7 +8,7 @@
     <img src ="https://img.shields.io/badge/license-JXW-orange"/>
 </p>
 
-**Latest update on 2022-08-16**
+**Latest update on 2022-12-05**
 
 Technical indicators implemented in Cython/C. This is supposed to be a
 faster technical analysis library with perfect integration to Python.
@@ -21,6 +21,10 @@ faster technical analysis library with perfect integration to Python.
 
 * Moving Average Convergence Divergence (MACD) 
 
+* Moving Standard Deviation function (MSTD) 
+
+* Relative Strength Index (RSI)
+
 * True Range (TR)
 
 * Absolute True Range (ATR)
@@ -30,6 +34,8 @@ faster technical analysis library with perfect integration to Python.
 * Super Trend (ST)
 
 * Time Segmented Volume (TSV)
+
+* On Balance Volume (OBV)
 
 ## Installation
 
