@@ -23,21 +23,21 @@ from libcpp.string cimport string
 # from libc.stdlib cimport malloc, free
 # from cpython cimport array
 from qtalib.util import shift
-from qtalib.util import ewm
 
 
-cpdef np.ndarray[np.float64_t, ndim= 1] SMA(double[:] closes, int period):
+cpdef np.ndarray[np.float64_t, ndim=1] SMA(double[:] closes, int period):
     """
     Simple Moving Average function
     Note: this method skips nan values
     
-    @param closes: np.array, list of closing candle prices
-    @param period: int, period to calculate for
-    @return _sma: np.array
+    :param closes: np.array
+    :param period: int
+    :return sma: np.array
     """
     cdef int length = closes.shape[0]
-    cdef np.ndarray[np.float64_t, ndim= 1] result = np.zeros(length - period + 1,
-                                                              dtype=np.float64)
+    cdef np.ndarray[np.float64_t, ndim=1] result = np.zeros(
+        length - period + 1,
+        dtype=np.float64)
     cdef double total
     cdef int i
     cdef int eff_period = 0
@@ -48,7 +48,6 @@ cpdef np.ndarray[np.float64_t, ndim= 1] SMA(double[:] closes, int period):
                 if not np.isnan(closes[j]):
                     total += closes[j]
                     eff_period += 1
-
         else:
             if not np.isnan(closes[i]):
                 total += closes[i]
@@ -62,19 +61,20 @@ cpdef np.ndarray[np.float64_t, ndim= 1] SMA(double[:] closes, int period):
             result[i - period + 1] = total / eff_period
     return result
 
-cpdef np.ndarray[np.float64_t, ndim= 1] EMA(double[:] closes, int period):
+cpdef np.ndarray[np.float64_t, ndim=1] EMA(double[:] closes, int period):
     """
     Exponential Moving Average function
     Ref1: https://github.com/peerchemist/finta/blob/master/finta/finta.py
     Ref2: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.ewm.html
     
-    @param closes: np.array, list of closing candle prices
-    @param period: int, period to calculate for
-    @return _ema: np.array
+    :param closes: np.array
+    :param period: int
+    :return ema: np.array
     """
     cdef int length = closes.shape[0]
-    cdef np.ndarray[np.float64_t, ndim= 1] result = np.zeros(length,
-                                                              dtype=np.float64)
+    cdef np.ndarray[np.float64_t, ndim=1] result = np.zeros(
+        length,
+        dtype=np.float64)
     cdef double alpha = 2. / (period + 1)
     cdef double w = 1. - alpha
     cdef double f1 = 1
@@ -89,7 +89,7 @@ cpdef np.ndarray[np.float64_t, ndim= 1] EMA(double[:] closes, int period):
             f2 += w**(i + 1)
     return result
 
-cpdef np.ndarray[np.float64_t, ndim= 1] MSTD(double[:] closes, int period):
+cpdef np.ndarray[np.float64_t, ndim=1] MSTD(double[:] closes, int period):
     """
     Moving Standard Deviation function
     Ref: https://www.zaner.com/3.0/education/technicalstudies/MSD.asp#:~:text=The%20moving%20standard%20deviation%20is,moving%20average%20of%20the%20prices.
@@ -99,14 +99,15 @@ cpdef np.ndarray[np.float64_t, ndim= 1] MSTD(double[:] closes, int period):
     standard deviation of prices from the moving average of the prices.
     Note: this method skips nan values
 
-    @param closes: np.array, list of closing candle prices
-    @param period: int, period to calculate for
-    @return _mstd: np.array
+    :param closes: np.array
+    :param period: int
+    :return mstd: np.array
     """
     cdef int length = closes.shape[0]
-    cdef np.ndarray[np.float64_t, ndim= 1] _sma
-    cdef np.ndarray[np.float64_t, ndim= 1] result = np.zeros(length - period + 1,
-                                                              dtype=np.float64)
+    cdef np.ndarray[np.float64_t, ndim=1] _sma
+    cdef np.ndarray[np.float64_t, ndim=1] result = np.zeros(
+        length - period + 1,
+        dtype=np.float64)
     cdef double total
     cdef int i
     cdef int eff_period = 0
@@ -118,7 +119,6 @@ cpdef np.ndarray[np.float64_t, ndim= 1] MSTD(double[:] closes, int period):
                 if not np.isnan(closes[j]):
                     total += (closes[j] - _sma[i - period + 1])**2
                     eff_period += 1
-
         else:
             if not np.isnan(closes[i]):
                 total += (closes[i] - _sma[i - period + 1])**2
@@ -132,11 +132,12 @@ cpdef np.ndarray[np.float64_t, ndim= 1] MSTD(double[:] closes, int period):
             result[i - period + 1] = total / eff_period
     return np.sqrt(result)
 
-cpdef np.ndarray[np.float64_t, ndim= 2] MACD(
+cpdef np.ndarray[np.float64_t, ndim=2] MACD(
         double[:] closes,
         int period_fast=12,
         int period_slow=26,
-        int signal=9):
+        int signal=9
+):
     """
     MACD, MACD Signal and MACD difference.
 
@@ -162,18 +163,18 @@ cpdef np.ndarray[np.float64_t, ndim= 2] MACD(
     signal line.
 
     :param closes: np.array
-    :param period_fast: int
-    :param period_slow: int
-    :param signal: int
-    :param Returns: np.ndarray
+    :param period_fast: int (optional)
+    :param period_slow: int (optional)
+    :param signal: int (optional)
+    :param Returns: macd: np.ndarray
                     - col1: MACD
                     - col2: SIGNAL
     """
-    cdef np.ndarray[np.float64_t, ndim= 2] result
-    cdef np.ndarray[np.float64_t, ndim= 1] EMA_fast = EMA(closes, period_fast)
-    cdef np.ndarray[np.float64_t, ndim= 1] EMA_slow = EMA(closes, period_slow)
-    cdef np.ndarray[np.float64_t, ndim= 1] MACD = EMA_fast - EMA_slow
-    cdef np.ndarray[np.float64_t, ndim= 1] MACD_signal = EMA(MACD, signal)
+    cdef np.ndarray[np.float64_t, ndim=2] result
+    cdef np.ndarray[np.float64_t, ndim=1] EMA_fast = EMA(closes, period_fast)
+    cdef np.ndarray[np.float64_t, ndim=1] EMA_slow = EMA(closes, period_slow)
+    cdef np.ndarray[np.float64_t, ndim=1] MACD = EMA_fast - EMA_slow
+    cdef np.ndarray[np.float64_t, ndim=1] MACD_signal = EMA(MACD, signal)
     result = np.concatenate(
         (
             MACD[:, None],
@@ -182,26 +183,26 @@ cpdef np.ndarray[np.float64_t, ndim= 2] MACD(
     )
     return result
 
-cpdef np.ndarray[np.float64_t, ndim= 1] RSI(
-    double[:] closes,
-    int period = 14,
-):
-    """Relative Strength Index (RSI) is a momentum oscillator that measures the 
+cpdef np.ndarray[np.float64_t, ndim=1] RSI(double[:] closes, int period = 14):
+    """
+    Relative Strength Index (RSI) is a momentum oscillator that measures the 
     speed and change of price movements.
     RSI oscillates between zero and 100. Traditionally, and according to Wilder, 
     RSI is considered overbought when above 70 and oversold when below 30.
     Signals can also be generated by looking for divergences, failure swings and 
     centerline crossovers.
-    RSI can also be used to identify the general trend."""
-
+    RSI can also be used to identify the general trend.
+    
+    :param closes: np.array
+    :param period: int (optional)
+    :return: rsi: np.array
+    """
     ## get the price diff
     delta = np.diff(closes)
-
     ## positive gains (up) and negative gains (down) Series
     up, down = delta.copy(), delta.copy()
     up[up < 0] = 0
     down[down > 0] = 0
-
     # EMAs of ups and downs
     # _gain = ewm(up, window=period)
     # _loss = ewm(abs(down), window=period)
@@ -213,7 +214,7 @@ cpdef np.ndarray[np.float64_t, ndim= 1] RSI(
     # window as (2 * period - 1) here:
     _gain = EMA(up, 2 * period - 1)
     _loss = EMA(abs(down), 2 * period - 1)
-    # Avoid dividing by zeros
+    # Avoid being divided by zeros
     RS = np.divide(
         _gain,
         _loss,
@@ -222,10 +223,11 @@ cpdef np.ndarray[np.float64_t, ndim= 1] RSI(
     )
     return 100 - (100 / (1 + RS))
 
-cpdef np.ndarray[np.float64_t, ndim= 1] TR(
+cpdef np.ndarray[np.float64_t, ndim=1] TR(
         double[:] highs,
         double[:] lows,
-        double[:] closes):
+        double[:] closes
+):
     """
     True Range is the maximum of three price ranges:
     1. Most recent period's high minus the most recent period's low.
@@ -235,7 +237,7 @@ cpdef np.ndarray[np.float64_t, ndim= 1] TR(
     :param highs: np.array
     :param lows: np.array
     :param closes: np.array
-    :return: np.array
+    :return: tr: np.array
     """
     highs_arr = np.asarray(highs)
     lows_arr = np.asarray(lows)
@@ -252,24 +254,26 @@ cpdef np.ndarray[np.float64_t, ndim= 1] ATR(
         double[:] highs,
         double[:] lows,
         double[:] closes,
-        int period=14):
+        int period=14
+):
     """
     Average True Range is moving average of True Range.
 
     :param highs: np.array
     :param lows: np.array
     :param closes: np.array
-    :param period: int
-    :return: np.array
+    :param period: int (optional)
+    :return: atr: np.array
     """
     cdef np.ndarray[np.float64_t, ndim= 1] TR_ = TR(highs, lows, closes)
-    return SMA(TR_, period=period)
+    return EMA(TR_, period=period)
 
-cpdef np.ndarray[np.float64_t, ndim= 1] SAR(
+cpdef np.ndarray[np.float64_t, ndim=1] SAR(
         double[:] highs,
         double[:] lows,
         double af=0.02,
-        double amax=0.2):
+        double amax=0.2
+):
     """
     SAR stands for “stop and reverse,” which is the actual indicator used in 
     the system.
@@ -280,8 +284,8 @@ cpdef np.ndarray[np.float64_t, ndim= 1] SAR(
     
     :param highs: np.array
     :param lows: np.array
-    :param af: float
-    :param amax: float
+    :param af: float (optional)
+    :param amax: float (optional)
     :return: sar: np.array
     """
     cdef int length = highs.shape[0]
@@ -291,16 +295,15 @@ cpdef np.ndarray[np.float64_t, ndim= 1] SAR(
     cdef double xpt1, af0, af1
     # auxilary variables
     cdef double lmax, lmin
+    cdef long i
     # result: sar
     cdef np.ndarray[np.float64_t, ndim= 1] _sar = np.empty_like(highs)
-
     sig0 = 1
     xpt0 = highs[0]
     af0 = af
     highs_arr = np.asarray(highs)
     lows_arr = np.asarray(lows)
     _sar[0] = lows[0] - np.std(highs_arr - lows_arr, ddof=1)
-
     for i in range(1, length):
         sig1, xpt1, af1 = sig0, xpt0, af0
         lmin = min(lows[i - 1], lows[i])
@@ -332,12 +335,14 @@ cpdef cppmap[string, double] ST(
         double[:] lows,
         double[:] closes,
         int timeperiod=10,
-        double band_multiple=3.0):
+        double band_multiple=3.0
+):
     """
-    SuperTrend
+    SuperTrend indicator depends on previous supertrend.
+    Note: dn line stands for upper bound; while up line stands for lower bound
     ATR channel, with mid/up/dn lines
-        - close falls below dn, sell
-        - close climbs above up, buy
+        - In a down trend, if close climbs above dn, trend reverse to up -> buy
+        - In a up trend, if close falls below up, trend reverse to down -> sell
     Ref1: https://cn.tradingview.com/script/r6dAP7yi/
     Ref2: https://zhuanlan.zhihu.com/p/138461317
     
@@ -345,8 +350,8 @@ cpdef cppmap[string, double] ST(
     :param highs: np.array
     :param lows: np.array
     :param closes: np.array
-    :param timeperiod: int
-    :param band_multiple: float
+    :param timeperiod: int (optional)
+    :param band_multiple: float (optional)
     :return: super_trend: Dict[str, float]
     """
     highs_arr = np.asarray(highs)
@@ -360,33 +365,29 @@ cpdef cppmap[string, double] ST(
         closes=closes_arr,
         period=timeperiod
     )
-    dn = mids[-1] - band_multiple * _atr[-1]
-    up = mids[-1] + band_multiple * _atr[-1]
     if super_trend.size() > 0:
         trend = super_trend["trend"]
         dn1 = super_trend["dn"]
         up1 = super_trend["up"]
-        if closes[-2] > dn1:
-            dn = max(dn, dn1)
-        if closes[-2] < up1:
-            up = min(up, up1)
     else:
         n = len(closes_arr) / 3
         if closes_arr[:n].mean() < closes_arr[n:2 * n].mean() < closes_arr[2 * n:].mean():
             trend = 1.0
         else:
             trend = -1.0
-        dn1 = -float("inf")
-        up1 = float("inf")
+        dn1 = float("inf")
+        up1 = -float("inf")
 
-    if trend == -1.0 and closes[-1] > up1:
+    dn = mids[-1] + band_multiple * _atr[-1]
+    up = mids[-1] - band_multiple * _atr[-1]
+    if trend == -1.0 and closes[-1] > dn1:
         trend = 1.0
-        dn = mids[-1] - band_multiple * _atr[-1]
-        up = mids[-1] + band_multiple * _atr[-1]
-    elif trend == 1.0 and closes[-1] < dn1:
+    elif trend == -1.0:
+        dn = min(dn, dn1)
+    elif trend == 1.0 and closes[-1] < up1:
         trend = -1.0
-        dn = mids[-1] - band_multiple * _atr[-1]
-        up = mids[-1] + band_multiple * _atr[-1]
+    elif trend == 1.0:
+        up = max(up, up1)
     super_trend["mid"] = mids[-1]
     super_trend["ATR"] = _atr[-1]
     super_trend["up"] = up
@@ -394,76 +395,37 @@ cpdef cppmap[string, double] ST(
     super_trend["trend"] = trend
     return super_trend
 
-
-cpdef dict TSV(
+cpdef cppmap[string, double] TSV(
         double[:] closes,
         long[:] volumes,
         int tsv_length=13,
-        int tsv_ma_length=7,
-        int tsv_lookback=60):
+        int tsv_ma_length=7
+):
     """
     Time Segmented Volume
     Ref1: https://tw.tradingview.com/script/fmuLoK0d-time-segmented-volume-bands/?utm_source=amp-version&sp_amp_linker=1*zznimo*amp_id*YW1wLWVhdFVadXpBcjRIczRCMWpfN1l6VUE.
     
     :param closes: np.array
     :param volumes: np.array
-    :param tsv_length: int
-    :param tsv_ma_length: int
-    :param tsv_bands_length: int
-    :param tsv_lookback: int
-    :return _tsv: Dict[str, float]
+    :param tsv_length: int (optional)
+    :param tsv_ma_length: int (optional)
+    :return tsv: Dict[str, float]
     """
     closes_arr = np.asarray(closes)
     volumes_arr = np.asarray(volumes)
-    # LOGIC - TSV
-    cdef np.ndarray[np.float64_t, ndim=1] t, m, tp, tn, tpna, tnna
-    cdef np.ndarray[np.float64_t, ndim=1] inflow, outflow, difference, total
-    cdef np.ndarray[np.float64_t, ndim=1] inflow_p, outflow_p, avg_inflow, avg_outflow
-    cdef dict _tsv = {}
+    cdef np.ndarray[np.float64_t, ndim=1] t, _tsv, _tsv_ma
+    cdef cppmap[string, double] tsv
     t = np.diff(closes_arr) * volumes_arr[1:]
-    t = np.convolve(t, np.ones(tsv_length, dtype=int), 'valid')
-    m = SMA(t, tsv_ma_length)
+    _tsv = np.convolve(t, np.ones(tsv_length, dtype=int), 'valid')
+    _tsv_ma = SMA(_tsv, tsv_ma_length)
+    tsv["tsv"] = _tsv[-1]
+    tsv["tsv_ma"] = _tsv_ma[-1]
+    return tsv
 
-    # # LOGIC - Inflow / outflow
-    tp = t.copy()
-    tp[tp <= 0] = 0
-    tn = t.copy()
-    tn[tn >= 0] = 0
-    inflow = np.convolve(tp, np.ones(tsv_lookback, dtype=int),
-                         'valid')
-    outflow = np.convolve(tn, np.ones(tsv_lookback, dtype=int),
-                          'valid') * -1
-    difference = inflow - outflow
-    total = inflow + outflow
-    inflow_p = inflow / total * 100
-    outflow_p = outflow / total * 100
-
-    # LOGIC - AVG bands
-    tpna = t.copy()
-    tpna[tpna <= 0] = np.nan
-    tnna = t.copy()
-    tnna[tnna >= 0] = np.nan
-    avg_inflow = SMA(tpna, tsv_lookback)
-    avg_outflow = SMA(tnna, tsv_lookback)
-    _tsv["t"] = t[-1]
-    _tsv["m"] = m[-1]
-    _tsv["avg_inflow"] = avg_inflow[-1]
-    _tsv["avg_outflow"] = avg_outflow[-1]
-    _tsv["difference"] = difference[-1]
-    _tsv["inflow_p"] = inflow_p[-1]
-    _tsv["outflow_p"] = outflow_p[-1]
-    _tsv["t_ts"] = t[:]
-    _tsv["m_ts"] = m[:]
-    _tsv["avg_inflow_ts"] = avg_inflow[:]
-    _tsv["avg_outflow_ts"] = avg_outflow[:]
-    _tsv["difference_ts"] = difference[:]
-    _tsv["inflow_p_ts"] = inflow_p[:]
-    _tsv["outflow_p_ts"] = outflow_p[:]
-    return _tsv
-
-cpdef np.ndarray[np.float64_t, ndim= 1] OBV(
+cpdef np.ndarray[np.float64_t, ndim=1] OBV(
         double[:] closes,
-        long[:] volumes
+        long[:] volumes,
+        long cum_obv = 0
 ):
     """
     On Balance Volume (OBV) measures buying and selling pressure as a cumulative 
@@ -474,10 +436,16 @@ cpdef np.ndarray[np.float64_t, ndim= 1] OBV(
     flow.Chartists can look for divergences between OBV and price to predict 
     price movements or use OBV to confirm price trends.
     source: https://en.wikipedia.org/wiki/On-balance_volume#The_formula
+    
+    :param closes: np.array
+    :param volumes: np.array
+    :param cum_obv: int (optional), initial cumulative obv
+    :return obv: np.array
     """
-    cpdef int n = len(closes)
-    cpdef np.ndarray[np.float64_t, ndim= 1] _obv = np.zeros(n)
-    cpdef int i
+    cdef int n = len(closes)
+    cdef np.ndarray[np.float64_t, ndim= 1] _obv = np.zeros(n)
+    _obv[0] = cum_obv
+    cdef int i
     for i in range(1, n):
         if closes[i] < closes[i-1]:
             _obv[i] = -volumes[i]
