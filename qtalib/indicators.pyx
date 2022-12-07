@@ -398,8 +398,9 @@ cpdef cppmap[string, double] ST(
 cpdef cppmap[string, double] TSV(
         double[:] closes,
         long[:] volumes,
-        int tsv_length=13,
-        int tsv_ma_length=7
+        long tsv_length=13,
+        long tsv_ma_length=7,
+        long tsv_lookback_length=60
 ):
     """
     Time Segmented Volume
@@ -409,17 +410,41 @@ cpdef cppmap[string, double] TSV(
     :param volumes: np.array
     :param tsv_length: int (optional)
     :param tsv_ma_length: int (optional)
+    :param tsv_lookback_length: int (optional)
     :return tsv: Dict[str, float]
     """
     closes_arr = np.asarray(closes)
     volumes_arr = np.asarray(volumes)
     cdef np.ndarray[np.float64_t, ndim=1] t, _tsv, _tsv_ma
+    cdef np.ndarray[np.float64_t, ndim=1] _tsvp, _tsvn
+    cdef np.ndarray[np.float64_t, ndim=1] _tsv_pos_ma, _tsv_neg_ma
+    cdef np.ndarray[np.float64_t, ndim=1] _tsv_pos_mstd, _tsv_neg_mstd
+    cdef np.ndarray[np.float64_t, ndim=1] _tsv_pct
     cdef cppmap[string, double] tsv
     t = np.diff(closes_arr) * volumes_arr[1:]
     _tsv = np.convolve(t, np.ones(tsv_length, dtype=int), 'valid')
     _tsv_ma = SMA(_tsv, tsv_ma_length)
+    _tsvp = _tsv.copy()
+    _tsvp[_tsvp <= 0] = 0
+    _tsv_pos_ma = SMA(_tsvp, tsv_lookback_length)
+    _tsv_pos_mstd = MSTD(_tsvp, tsv_lookback_length)
+    _tsvn = _tsv.copy()
+    _tsvn[_tsvn >= 0] = 0
+    _tsv_neg_ma = SMA(_tsvn, tsv_lookback_length)
+    _tsv_neg_mstd = MSTD(_tsvn, tsv_lookback_length)
+    _tsv_pct = 100. * np.divide(
+        _tsv_pos_ma + _tsv_neg_ma,
+        _tsv_pos_ma - _tsv_neg_ma,
+        out=0.5 * np.ones_like(_tsv_pos_ma),
+        where=_tsv_pos_ma - _tsv_neg_ma != 0
+    )
     tsv["tsv"] = _tsv[-1]
     tsv["tsv_ma"] = _tsv_ma[-1]
+    tsv["tsv_pos_ma"] = _tsv_pos_ma[-1]
+    tsv["tsv_pos_mstd"] = _tsv_pos_mstd[-1]
+    tsv["tsv_neg_ma"] = _tsv_neg_ma[-1]
+    tsv["tsv_neg_mstd"] = _tsv_neg_mstd[-1]
+    tsv["tsv_pct"] = _tsv_pct[-1]
     return tsv
 
 cpdef np.ndarray[np.float64_t, ndim=1] OBV(
