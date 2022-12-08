@@ -130,7 +130,7 @@ cpdef np.ndarray[np.float64_t, ndim=1] MSTD(double[:] closes, int period):
             result[i - period + 1] = np.nan
         else:
             result[i - period + 1] = total / eff_period
-    return np.sqrt(result)
+    return np.where(result < 0 | np.isnan(result), np.nan, np.sqrt(result))
 
 cpdef np.ndarray[np.float64_t, ndim=2] MACD(
         double[:] closes,
@@ -432,12 +432,14 @@ cpdef cppmap[string, double] TSV(
     _tsvn[_tsvn >= 0] = 0
     _tsv_neg_ma = SMA(_tsvn, tsv_lookback_length)
     _tsv_neg_mstd = MSTD(_tsvn, tsv_lookback_length)
-    _tsv_pct = 100. * np.divide(
+    # tsv_pct is a value within [0, 100], the closer it is to 100, the stronger
+    # inflow; the closer it is to 0, the stronger outflow.
+    _tsv_pct = 100 * (1. + np.divide(
         _tsv_pos_ma + _tsv_neg_ma,
         _tsv_pos_ma - _tsv_neg_ma,
-        out=0.5 * np.ones_like(_tsv_pos_ma),
+        out=np.zeros_like(_tsv_pos_ma),
         where=_tsv_pos_ma - _tsv_neg_ma != 0
-    )
+    )) / 2.
     tsv["tsv"] = _tsv[-1]
     tsv["tsv_ma"] = _tsv_ma[-1]
     tsv["tsv_pos_ma"] = _tsv_pos_ma[-1]
@@ -445,6 +447,8 @@ cpdef cppmap[string, double] TSV(
     tsv["tsv_neg_ma"] = _tsv_neg_ma[-1]
     tsv["tsv_neg_mstd"] = _tsv_neg_mstd[-1]
     tsv["tsv_pct"] = _tsv_pct[-1]
+    tsv["tsv_pct_mean"] = _tsv_pct.mean()
+    tsv["tsv_pct_std"] = _tsv_pct.std()
     return tsv
 
 cpdef np.ndarray[np.float64_t, ndim=1] OBV(
