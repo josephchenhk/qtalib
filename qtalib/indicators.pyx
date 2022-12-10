@@ -481,3 +481,39 @@ cpdef np.ndarray[np.float64_t, ndim=1] OBV(
         elif closes[i] > closes[i-1]:
             _obv[i] = volumes[i]
     return _obv.cumsum()
+
+cpdef double CYC(
+        double[:] data,
+        double cyc=0,
+        long short_ma_length=30,
+        long long_ma_length=50,
+        double alpha=0.33,
+        long lookback_window=10
+):
+    """
+    Price cyclicality (PCY) and volume cyclicality (VOC)
+    source:
+    1. https://www.researchgate.net/publication/329756995_Price_Cyclicality_Model_for_Financial_Markets_Reliable_Limit_Conditions_for_Algorithmic_Trading#:~:text=The%20price%20cyclicality%20model%20is,included%20in%20the%20price%20behavior.
+    2. https://www.researchgate.net/publication/342586790_VOLUME_CYCLICALITY_RELIABLE_CAPITAL_INVESTMENT_SIGNALS_BASED_ON_TRADING_VOLUME_INFORMATION
+    
+    :param data: 
+    :param cyc: 
+    :param short_ma_length: 
+    :param long_ma_length: 
+    :param alpha: 
+    :param lookback_window: 
+    :return: 
+    """
+    cdef np.ndarray[np.float64_t, ndim=1] ma_short, ma_long, ma_diff
+    cdef double ma_diff_max, ma_diff_min
+    cdef np.ndarray[np.float64_t, ndim=1] delta
+    ma_short = SMA(data, short_ma_length)
+    ma_long = SMA(data, long_ma_length)
+    ma_diff = ma_short[-lookback_window:] - ma_long[-lookback_window:]
+    ma_diff_max = ma_diff.max()
+    ma_diff_min = ma_diff.min()
+    delta = (ma_diff_max - ma_diff) / (ma_diff_max - ma_diff_min)
+    return alpha * (delta[-1] - cyc) + cyc
+
+
+
