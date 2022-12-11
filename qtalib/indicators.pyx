@@ -496,19 +496,35 @@ cpdef double CYC(
     1. https://www.researchgate.net/publication/329756995_Price_Cyclicality_Model_for_Financial_Markets_Reliable_Limit_Conditions_for_Algorithmic_Trading#:~:text=The%20price%20cyclicality%20model%20is,included%20in%20the%20price%20behavior.
     2. https://www.researchgate.net/publication/342586790_VOLUME_CYCLICALITY_RELIABLE_CAPITAL_INVESTMENT_SIGNALS_BASED_ON_TRADING_VOLUME_INFORMATION
     
-    :param data: 
-    :param cyc: 
-    :param short_ma_length: 
-    :param long_ma_length: 
-    :param alpha: 
+    :param data: np.array
+    :param cyc: float, previous cyclicality
+    :param short_ma_length: int
+    :param long_ma_length: int
+    :param alpha: float
     :param lookback_window: 
-    :return: 
+    :return: cyc: float, cyclicality for the data series
     """
+    cdef long data_len
+    if short_ma_length >= long_ma_length:
+        raise ValueError(
+            "Parameters short_ma_length should be smaller than long_ma_length; "
+            f"but short_ma_length={short_ma_length}, and "
+            f"long_ma_length={long_ma_length}.")
+    data_len = len(data) - long_ma_length - lookback_window
+    if data_len < -1:
+        raise ValueError(
+            "Data length is not sufficient to calculate the results for "
+            f"long_ma_length={long_ma_length}, and "
+            f"lookback_window={lookback_window}, at least"
+            f"{long_ma_length}+{lookback_window}-1="
+            f"{long_ma_length+lookback_window-1} is needed.")
+
     cdef np.ndarray[np.float64_t, ndim=1] ma_short, ma_long, ma_diff
     cdef double ma_diff_max, ma_diff_min
     cdef np.ndarray[np.float64_t, ndim=1] delta
     ma_short = SMA(data, short_ma_length)
     ma_long = SMA(data, long_ma_length)
+    print(len(ma_short), len(ma_long))
     ma_diff = ma_short[-lookback_window:] - ma_long[-lookback_window:]
     ma_diff_max = ma_diff.max()
     ma_diff_min = ma_diff.min()
