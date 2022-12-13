@@ -417,38 +417,37 @@ cpdef cppmap[string, double] TSV(
     volumes_arr = np.asarray(volumes)
     cdef np.ndarray[np.float64_t, ndim=1] t, _tsv, _tsv_ma
     cdef np.ndarray[np.float64_t, ndim=1] _tsvp, _tsvn
-    cdef np.ndarray[np.float64_t, ndim=1] _tsv_pos_ma, _tsv_neg_ma
-    cdef np.ndarray[np.float64_t, ndim=1] _tsv_pos_mstd, _tsv_neg_mstd
-    cdef np.ndarray[np.float64_t, ndim=1] _tsv_pct
+    cdef np.ndarray[np.float64_t, ndim=1] _inflow, _outflow
+    cdef np.ndarray[np.float64_t, ndim=1] _avg_inflow, _avg_outflow
+    # cdef np.ndarray[np.float64_t, ndim=1] _tsv_pct
     cdef cppmap[string, double] tsv
     t = np.diff(closes_arr) * volumes_arr[1:]
     _tsv = np.convolve(t, np.ones(tsv_length, dtype=int), 'valid')
     _tsv_ma = SMA(_tsv, tsv_ma_length)
+
+    # Total inflow and outflow
     _tsvp = _tsv.copy()
     _tsvp[_tsvp <= 0] = 0
-    _tsv_pos_ma = SMA(_tsvp, tsv_lookback_length)
-    _tsv_pos_mstd = MSTD(_tsvp, tsv_lookback_length)
+    _inflow = np.convolve(
+        _tsvp, np.ones(tsv_lookback_length, dtype=int), 'valid')
     _tsvn = _tsv.copy()
     _tsvn[_tsvn >= 0] = 0
-    _tsv_neg_ma = SMA(_tsvn, tsv_lookback_length)
-    _tsv_neg_mstd = MSTD(_tsvn, tsv_lookback_length)
-    # tsv_pct is a value within [0, 100], the closer it is to 100, the stronger
-    # inflow; the closer it is to 0, the stronger outflow.
-    _tsv_pct = 100 * (1. + np.divide(
-        _tsv_pos_ma + _tsv_neg_ma,
-        _tsv_pos_ma - _tsv_neg_ma,
-        out=np.zeros_like(_tsv_pos_ma),
-        where=_tsv_pos_ma - _tsv_neg_ma != 0
-    )) / 2.
+    _outflow = np.convolve(
+        _tsvn, np.ones(tsv_lookback_length, dtype=int), 'valid')
+
+    # Average inflow and outflow
+    _tsvp = _tsv.copy()
+    _tsvp[_tsvp <= 0] = np.nan
+    _avg_inflow = SMA(_tsvp, tsv_lookback_length)
+    _tsvn = _tsv.copy()
+    _tsvn[_tsvn >= 0] = np.nan
+    _avg_outflow = SMA(_tsvn, tsv_lookback_length)
     tsv["tsv"] = _tsv[-1]
     tsv["tsv_ma"] = _tsv_ma[-1]
-    tsv["tsv_pos_ma"] = _tsv_pos_ma[-1]
-    tsv["tsv_pos_mstd"] = _tsv_pos_mstd[-1]
-    tsv["tsv_neg_ma"] = _tsv_neg_ma[-1]
-    tsv["tsv_neg_mstd"] = _tsv_neg_mstd[-1]
-    tsv["tsv_pct"] = _tsv_pct[-1]
-    tsv["tsv_pct_mean"] = _tsv_pct.mean()
-    tsv["tsv_pct_std"] = _tsv_pct.std()
+    tsv["tsv_inflow"] = _inflow[-1]
+    tsv["tsv_outflow"] = _outflow[-1]
+    tsv["tsv_avg_inflow"] = _avg_inflow[-1]
+    tsv["tsv_avg_outflow"] = _avg_outflow[-1]
     return tsv
 
 cpdef np.ndarray[np.float64_t, ndim=1] OBV(
