@@ -519,8 +519,7 @@ cpdef double CYC(
             f"{long_ma_length+lookback_window-1} is needed.")
 
     cdef np.ndarray[np.float64_t, ndim=1] ma_short, ma_long, ma_diff
-    cdef double ma_diff_max, ma_diff_min
-    cdef np.ndarray[np.float64_t, ndim=1] delta
+    cdef double ma_diff_max, ma_diff_min, delta
     ma_short = SMA(data, short_ma_length)
     ma_long = SMA(data, long_ma_length)
     ma_diff = ma_long[-lookback_window:] - ma_short[-lookback_window:]
