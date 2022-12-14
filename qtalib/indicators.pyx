@@ -484,8 +484,8 @@ cpdef np.ndarray[np.float64_t, ndim=1] OBV(
 cpdef double CYC(
         double[:] data,
         double cyc=0,
-        long short_ma_length=30,
-        long long_ma_length=50,
+        long short_ma_length=10,
+        long long_ma_length=30,
         double alpha=0.33,
         long lookback_window=10
 ):
@@ -523,12 +523,11 @@ cpdef double CYC(
     cdef np.ndarray[np.float64_t, ndim=1] delta
     ma_short = SMA(data, short_ma_length)
     ma_long = SMA(data, long_ma_length)
-    print(len(ma_short), len(ma_long))
-    ma_diff = ma_short[-lookback_window:] - ma_long[-lookback_window:]
+    ma_diff = ma_long[-lookback_window:] - ma_short[-lookback_window:]
     ma_diff_max = ma_diff.max()
     ma_diff_min = ma_diff.min()
-    delta = (ma_diff_max - ma_diff) / (ma_diff_max - ma_diff_min)
-    return alpha * (delta[-1] - cyc) + cyc
+    delta = (ma_diff_max - ma_diff[-1]) / (ma_diff_max - ma_diff_min)
+    return alpha * (delta - cyc) + cyc
 
 
 
