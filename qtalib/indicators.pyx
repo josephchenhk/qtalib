@@ -525,7 +525,7 @@ cpdef double CYC(
     ma_diff = ma_long[-lookback_window:] - ma_short[-lookback_window:]
     ma_diff_max = ma_diff.max()
     ma_diff_min = ma_diff.min()
-    delta = (ma_diff_max - ma_diff[-1]) / (ma_diff_max - ma_diff_min)
+    delta = 100 * (ma_diff_max - ma_diff[-1]) / (ma_diff_max - ma_diff_min)
     return alpha * (delta - cyc) + cyc
 
 
