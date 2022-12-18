@@ -13,10 +13,27 @@ written for another century.
 You should have received a copy of the JXW license with
 this file. If not, please write to: josephchenhk@gmail.com
 """
-from setuptools import setup, find_packages
+
+from distutils.core import setup
+from distutils.extension import Extension
+from Cython.Distutils import build_ext
+
+# from setuptools import setup
+from setuptools import find_packages
 from pathlib import Path
+
+import numpy
+
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
+
+ext_modules = [
+    Extension("qtalib.indicators", ["qtalib/indicators.pyx"],
+              include_dirs=[numpy.get_include()],
+              language="c++"),
+    Extension("qtalib.util", ["qtalib/util.pyx"],
+              include_dirs=[numpy.get_include()])
+]
 
 setup(
     name='qtalib',
@@ -32,6 +49,8 @@ setup(
                       'Cython'],
     author='josephchen',
     author_email='josephchenhk@gmail.com',
+    cmdclass={'build_ext': build_ext},
+    ext_modules=ext_modules,
     include_package_data=True,
     packages=find_packages(),
     package_data={"qtalib": [

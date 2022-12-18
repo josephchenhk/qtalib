@@ -103,9 +103,15 @@ volumes = ohlcv["volume"].to_numpy()
 #     ta.RSI(closes, 14)
 # ))
 
-from qtalib.util import ffill
-print(np.allclose(
-    ffill(np.array(TA.OBV(ohlcv)))[1:],
-    ta.OBV(closes, volumes)[1:]
-))
+# from qtalib.util import ffill
+# print(np.allclose(
+#     ffill(np.array(TA.OBV(ohlcv)))[1:],
+#     ta.OBV(closes, volumes)[1:]
+# ))
+
+cyc = 0
+for n in range(50, 0, -1):
+    cyc = ta.CYC(closes[-n-59:-n], cyc)
+    print(cyc)
+
 
