@@ -8,7 +8,7 @@
     <img src ="https://img.shields.io/badge/license-JXW-orange"/>
 </p>
 
-**Latest update on 2022-12-05**
+**Latest update on 2022-12-18**
 
 Technical indicators implemented in Cython/C. This is supposed to be a
 faster technical analysis library with perfect integration to Python.
@@ -37,6 +37,8 @@ faster technical analysis library with perfect integration to Python.
 
 * On Balance Volume (OBV)
 
+* Cyclicality (CLC)
+
 ## Installation
 
 You may run the folllowing command to install QTalib immediately:
@@ -49,7 +51,7 @@ You may run the folllowing command to install QTalib immediately:
 # (Recommend) Install latest version from github 
 >> pip install git+https://github.com/josephchenhk/qtalib@main
 
-# Alternatively, install stable version from pip (currently version 0.0.1)
+# Alternatively, install stable version from pip (currently version 0.0.2)
 >> pip install qtalib
 ```
 

@@ -37,7 +37,7 @@ ext_modules = [
 
 setup(
     name='qtalib',
-    version='0.0.1',
+    version='0.0.2',
     keywords=('Quantitative Trading', 'Technical Analysis', 'QTaLib'),
     description='QTALIB: Quantitative Technical Analysis Library',
     long_description=long_description,
