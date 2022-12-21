@@ -528,7 +528,7 @@ cpdef double CYC(
     if abs(ma_diff_max - ma_diff_min) < 1e-9:
         return cyc
     else:
-        delta = 100 * (ma_diff_max - ma_diff[-1]) / (ma_diff_max - ma_diff_min)
+        delta = 100 * (ma_diff[-1] - ma_diff_min) / (ma_diff_max - ma_diff_min)
         return alpha * (delta - cyc) + cyc
 
 
