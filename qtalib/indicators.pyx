@@ -522,11 +522,14 @@ cpdef double CYC(
     cdef double ma_diff_max, ma_diff_min, delta
     ma_short = SMA(data, short_ma_length)
     ma_long = SMA(data, long_ma_length)
-    ma_diff = ma_long[-lookback_window:] - ma_short[-lookback_window:]
+    ma_diff = ma_short[-lookback_window:] - ma_long[-lookback_window:]
     ma_diff_max = ma_diff.max()
     ma_diff_min = ma_diff.min()
-    delta = 100 * (ma_diff_max - ma_diff[-1]) / (ma_diff_max - ma_diff_min)
-    return alpha * (delta - cyc) + cyc
+    if abs(ma_diff_max - ma_diff_min) < 1e-9:
+        return cyc
+    else:
+        delta = 100 * (ma_diff_max - ma_diff[-1]) / (ma_diff_max - ma_diff_min)
+        return alpha * (delta - cyc) + cyc
 
 
 
