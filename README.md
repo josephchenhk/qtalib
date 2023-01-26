@@ -70,6 +70,9 @@ print(ta.SMA(values, 3))
 # Exponential Moving Average
 # [12.         13.33333333 42.28571429 36.8        45.16129032]
 print(ta.EMA(values, 3))
+
+# SAR
+ta.SAR(highs, lows, 0.02, 0.2)
 ```
 
 ## Contributing
