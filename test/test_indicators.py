@@ -106,39 +106,41 @@ class TestFunctions(unittest.TestCase):
         res = array_equal(expected, actual)
         self.assertEqual(res, 1)
 
-    # def testST(self):
-    #     self.prepare_test_data("test_data2")
-    #     highs = self.highs
-    #     lows = self.lows
-    #     closes = self.closes
-    #
-    #     N = 30
-    #     super_trend = {}
-    #     py_super_trend = {}
-    #     for i in range(N):
-    #         py_super_trend = pta.ST(
-    #             py_super_trend,
-    #             highs[i:i + N],
-    #             lows[i:i + N],
-    #             closes[i:i + N],
-    #             10,
-    #             3.0,
-    #             1,
-    #             0
-    #         )
-    #         super_trend = ta.ST(
-    #             super_trend,
-    #             highs[i:i + N],
-    #             lows[i:i + N],
-    #             closes[i:i + N],
-    #             10,
-    #             3.0
-    #         )
-    #         super_trend_fmt = {k.decode("utf-8"): v for k, v in
-    #                            super_trend.items()}
-    #         expected = py_super_trend
-    #         actual = super_trend_fmt
-    #         self.assertEqual(expected, actual)
+    def testST(self):
+        self.prepare_test_data("test_data2")
+        highs = self.highs
+        lows = self.lows
+        closes = self.closes
+
+        N = 30
+        super_trend = {}
+        py_super_trend = {}
+        for i in range(N):
+            py_super_trend = pta.ST(
+                py_super_trend,
+                highs[i:i + N],
+                lows[i:i + N],
+                closes[i:i + N],
+                10,
+                3.0,
+                1,
+                0
+            )
+            super_trend = ta.ST(
+                super_trend,
+                highs[i:i + N],
+                lows[i:i + N],
+                closes[i:i + N],
+                10,
+                3.0
+            )
+            super_trend_fmt = {k.decode("utf-8"): v for k, v in
+                               super_trend.items()}
+            expected = py_super_trend
+            actual = super_trend_fmt
+            if expected != actual:
+                print(".")
+            self.assertEqual(expected, actual)
 
     def testTSV(self):
         self.prepare_test_data("test_data2")

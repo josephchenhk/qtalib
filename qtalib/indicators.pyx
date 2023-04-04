@@ -266,7 +266,7 @@ cpdef np.ndarray[np.float64_t, ndim= 1] ATR(
     :return: atr: np.array
     """
     cdef np.ndarray[np.float64_t, ndim= 1] TR_ = TR(highs, lows, closes)
-    return EMA(TR_, period=period)
+    return SMA(TR_, period=period)
 
 cpdef np.ndarray[np.float64_t, ndim=1] SAR(
         double[:] highs,

@@ -115,43 +115,40 @@ def ST(
     low = np.array(low)
     close = np.array(close)
 
-    mid = (high + low) * 0.5
+    mids = (high + low) * 0.5
 
     ohlc = pd.DataFrame({"open": None, "high": high,
                          "low": low, "close": close})
-    ATR = TA.ATR(ohlc, timeperiod).to_list()
+    _atr = TA.ATR(ohlc, timeperiod).to_list()
 
-    dn = mid[-1] - band_multiple * ATR[-1]
-    up = mid[-1] + band_multiple * ATR[-1]
     if super_trend is None:
         super_trend = {}
     if super_trend:
         trend = super_trend.get("trend")
         dn1 = super_trend.get("dn")
         up1 = super_trend.get("up")
-        if close[-2] > dn1:
-            dn = max(dn, dn1)
-        if close[-2] < up1:
-            up = min(up, up1)
     else:
         n = len(close) // 3
         if close[:n].mean() < close[n:2 * n].mean() < close[2 * n:].mean():
             trend = 1.0
         else:
             trend = -1.0
-        dn1 = -float("inf")
-        up1 = float("inf")
+        dn1 = float("inf")
+        up1 = -float("inf")
 
-    if trend == -1.0 and close[-1] > up1:
+    dn = mids[-1] + band_multiple * _atr[-1]
+    up = mids[-1] - band_multiple * _atr[-1]
+
+    if trend == -1.0 and close[-1] > dn1:
         trend = 1.0
-        dn = mid[-1] - band_multiple * ATR[-1]
-        up = mid[-1] + band_multiple * ATR[-1]
-    elif trend == 1.0 and close[-1] < dn1:
+    elif trend == -1.0:
+        dn = min(dn, dn1)
+    elif trend == 1.0 and close[-1] < up1:
         trend = -1.0
-        dn = mid[-1] - band_multiple * ATR[-1]
-        up = mid[-1] + band_multiple * ATR[-1]
-    super_trend["mid"] = mid[-1]
-    super_trend["ATR"] = ATR[-1]
+    elif trend == 1.0:
+        up = max(up, up1)
+    super_trend["mid"] = mids[-1]
+    super_trend["ATR"] = _atr[-1]
     super_trend["up"] = up
     super_trend["dn"] = dn
     super_trend["trend"] = trend
