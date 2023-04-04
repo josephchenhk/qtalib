@@ -163,8 +163,7 @@ def TSV(
         volume: List[float],
         tsv_length: int = 13,
         tsv_ma_length: int = 7,
-        tsv_bands_length: int = 44,
-        tsv_lookback: int = 60,
+        tsv_lookback_length: int = 60,
         tsv_resample_interval: int = 1,
         tsv_offset: int = 0
 ) -> Dict[str, Any]:
@@ -195,29 +194,25 @@ def TSV(
     tp[tp <= 0] = 0
     tn = t.copy()
     tn[tn >= 0] = 0
-    inflow = np.convolve(tp, np.ones(tsv_lookback, dtype=int), 'valid')
-    outflow = np.convolve(tn, np.ones(tsv_lookback, dtype=int),
-                          'valid') * -1
-    difference = inflow - outflow
-    total = inflow + outflow
-    inflow_p = inflow / total * 100
-    outflow_p = outflow / total * 100
+    inflow = np.convolve(
+        tp, np.ones(tsv_lookback_length, dtype=int), 'valid')
+    outflow = np.convolve(
+        tn, np.ones(tsv_lookback_length, dtype=int), 'valid')
 
     # LOGIC - AVG bands
     tpna = t.copy()
     tpna[tpna <= 0] = np.nan
     tnna = t.copy()
     tnna[tnna >= 0] = np.nan
-    avg_inflow = sma(tpna, periods=tsv_bands_length)
-    avg_outflow = sma(tnna, periods=tsv_bands_length)
+    avg_inflow = sma(tpna, periods=tsv_lookback_length)
+    avg_outflow = sma(tnna, periods=tsv_lookback_length)
     return {
-        "t": t[-1],
-        "m": m[-1],
-        "avg_inflow": avg_inflow[-1],
-        "avg_outflow": avg_outflow[-1],
-        "difference": difference[-1],
-        "inflow_p": inflow_p[-1],
-        "outflow_p": outflow_p[-1]
+        "tsv": t[-1],
+        "tsv_ma": m[-1],
+        "tsv_inflow": inflow[-1],
+        "tsv_outflow": outflow[-1],
+        "tsv_avg_inflow": avg_inflow[-1],
+        "tsv_avg_outflow": avg_outflow[-1]
     }
 
 def SS(
