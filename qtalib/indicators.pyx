@@ -13,9 +13,10 @@ written for another century.
 You should have received a copy of the JXW license with
 this file. If not, please write to: josephchenhk@gmail.com
 """
-
-import numpy as np
+cimport pandas as pd
 cimport numpy as np
+import pandas as pd
+import numpy as np
 from libcpp.map cimport map as cppmap
 from libcpp.string cimport string
 # from libcpp.vector cimport vector
@@ -132,12 +133,12 @@ cpdef np.ndarray[np.float64_t, ndim=1] MSTD(double[:] closes, int period):
             result[i - period + 1] = total / eff_period
     return np.where(result < 0 | np.isnan(result), np.nan, np.sqrt(result))
 
-cpdef np.ndarray[np.float64_t, ndim=2] MACD(
-        double[:] closes,
-        int period_fast=12,
-        int period_slow=26,
-        int signal=9
-):
+def MACD(
+    double[:] closes,
+    int period_fast=12,
+    int period_slow=26,
+    int signal=9
+) -> pd.DataFrame:
     """
     MACD, MACD Signal and MACD difference.
 
@@ -179,9 +180,10 @@ cpdef np.ndarray[np.float64_t, ndim=2] MACD(
         (
             MACD[:, None],
             MACD_signal[:, None]
-        ), axis=1
+        ),
+        axis=1
     )
-    return result
+    return pd.DataFrame(result, columns=['MACD', 'MACD_signal'])
 
 cpdef np.ndarray[np.float64_t, ndim=1] RSI(double[:] closes, int period = 14):
     """

@@ -21,7 +21,7 @@ import numpy
 
 ext_modules = [
     Extension("indicators", ["indicators.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), '/Users/joseph/miniconda3/envs/py38/lib/python3.8/site-packages'],
               language="c++"),
     Extension("util", ["util.pyx"],
               include_dirs=[numpy.get_include()])
@@ -30,5 +30,7 @@ ext_modules = [
 setup(
     name="Technical Indicators",
     cmdclass={'build_ext': build_ext},
-    ext_modules=ext_modules
+    ext_modules=ext_modules,
+    include_dirs=[numpy.get_include()]
 )
+

@@ -43,10 +43,10 @@ volumes = ohlcv["volume"].to_numpy()
 # print(TA.EMA(ohlcv, 2))
 # print(ta.EMA(closes, 2))
 
-# print(TA.MACD(ohlcv, period_fast=12, period_slow=26, signal=9))
-# print(ta.MACD(closes, period_fast=12, period_slow=26, signal=9))
+print(TA.MACD(ohlcv, period_fast=12, period_slow=26, signal=9))
+print(ta.MACD(closes, period_fast=12, period_slow=26, signal=9))
 
-# print(TA.TR(ohlc))
+print(TA.TR(ohlcv))
 # print(ta.TR(highs, lows, closes))
 
 # print(TA.ATR(ohlcv, 3))
