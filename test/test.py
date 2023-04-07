@@ -15,6 +15,7 @@ this file. If not, please write to: josephchenhk@gmail.com
 """
 import qtalib.py_indicators as pta
 import qtalib.indicators as ta
+from qtalib.util import unstructured_to_structured
 import os
 import pyximport
 
@@ -37,16 +38,21 @@ lows = ohlcv["low"].to_numpy()
 closes = ohlcv["close"].to_numpy()
 volumes = ohlcv["volume"].to_numpy()
 
-# print(TA.SMA(ohlc, 2))
+unstructured_to_structured(
+    ohlcv.to_numpy(),
+    ["open", "high", "low", "close", "volume"]
+)
+
+print(TA.SMA(ohlcv, 2))
 # print(ta.SMA(closes, 2))
 
 # print(TA.EMA(ohlcv, 2))
 # print(ta.EMA(closes, 2))
 
-print(TA.MACD(ohlcv, period_fast=12, period_slow=26, signal=9))
-print(ta.MACD(closes, period_fast=12, period_slow=26, signal=9))
+# print(TA.MACD(ohlcv, period_fast=12, period_slow=26, signal=9))
+# print(ta.MACD(closes, period_fast=12, period_slow=26, signal=9))
 
-print(TA.TR(ohlcv))
+# print(TA.TR(ohlcv))
 # print(ta.TR(highs, lows, closes))
 
 # print(TA.ATR(ohlcv, 3))

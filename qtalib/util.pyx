@@ -104,3 +104,23 @@ cpdef np.ndarray[np.float64_t, ndim = 1] ewm(
     cumsums = mult.cumsum()
     out = offset + cumsums*scale_arr[::-1]
     return out
+
+cpdef np.ndarray[np.float64_t, ndim=2] unstructured_to_structured(
+        np.ndarray[np.float64_t, ndim=2] data,
+        list column_names,
+):
+    """Covert a normal numpy ndarray to a structured numpy ndarray with column 
+    names"""
+    # Create a structured numpy ndarray with column names
+    cdef np.ndarray[np.float64_t, ndim=2] structured_data
+    # create a structured numpy ndarray with column names
+    print(type(data), data.dtype)
+    structured_data = np.recarray(
+        shape=(data.shape[0], data.shape[1]),
+        dtype=[(column_name, data.dtype) for column_name in column_names]
+    )
+
+    # copy the data into the structured numpy ndarray
+    for i, column_name in enumerate(column_names):
+        structured_data[column_name] = data[:, i]
+    return structured_data
