@@ -38,12 +38,7 @@ lows = ohlcv["low"].to_numpy()
 closes = ohlcv["close"].to_numpy()
 volumes = ohlcv["volume"].to_numpy()
 
-unstructured_to_structured(
-    ohlcv.to_numpy(),
-    ["open", "high", "low", "close", "volume"]
-)
-
-print(TA.SMA(ohlcv, 2))
+# print(TA.SMA(ohlcv, 2))
 # print(ta.SMA(closes, 2))
 
 # print(TA.EMA(ohlcv, 2))

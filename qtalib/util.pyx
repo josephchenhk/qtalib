@@ -111,15 +111,11 @@ cpdef np.ndarray[np.float64_t, ndim=2] unstructured_to_structured(
 ):
     """Covert a normal numpy ndarray to a structured numpy ndarray with column 
     names"""
-    # Create a structured numpy ndarray with column names
-    cdef np.ndarray[np.float64_t, ndim=2] structured_data
     # create a structured numpy ndarray with column names
-    print(type(data), data.dtype)
     structured_data = np.recarray(
-        shape=(data.shape[0], data.shape[1]),
+        shape=(data.shape[0],),
         dtype=[(column_name, data.dtype) for column_name in column_names]
     )
-
     # copy the data into the structured numpy ndarray
     for i, column_name in enumerate(column_names):
         structured_data[column_name] = data[:, i]

@@ -13,7 +13,6 @@ written for another century.
 You should have received a copy of the JXW license with
 this file. If not, please write to: josephchenhk@gmail.com
 """
-cimport pandas as pd
 cimport numpy as np
 import pandas as pd
 import numpy as np
@@ -24,6 +23,7 @@ from libcpp.string cimport string
 # from libc.stdlib cimport malloc, free
 # from cpython cimport array
 from qtalib.util import shift
+from qtalib.util import unstructured_to_structured
 
 
 cpdef np.ndarray[np.float64_t, ndim=1] SMA(double[:] closes, int period):
@@ -133,12 +133,12 @@ cpdef np.ndarray[np.float64_t, ndim=1] MSTD(double[:] closes, int period):
             result[i - period + 1] = total / eff_period
     return np.where(result < 0 | np.isnan(result), np.nan, np.sqrt(result))
 
-def MACD(
+cpdef np.ndarray[np.float64_t, ndim=2] MACD(
     double[:] closes,
     int period_fast=12,
     int period_slow=26,
     int signal=9
-) -> pd.DataFrame:
+):
     """
     MACD, MACD Signal and MACD difference.
 
@@ -183,7 +183,10 @@ def MACD(
         ),
         axis=1
     )
-    return pd.DataFrame(result, columns=['MACD', 'MACD_signal'])
+    return unstructured_to_structured(
+        data=result,
+        column_names=['MACD', 'MACD_signal']
+    )
 
 cpdef np.ndarray[np.float64_t, ndim=1] RSI(double[:] closes, int period = 14):
     """
