@@ -165,6 +165,19 @@ class TestFunctions(unittest.TestCase):
         actual = {k.decode("utf-8"): v for k, v in actual.items()}
         self.assertEqual(expected, actual)
 
+    def testOBV(self):
+        from test_results import exp_obv_result
+        self.prepare_test_data("test_data2")
+        opens = self.opens
+        highs = self.highs
+        lows = self.lows
+        closes = self.closes
+        volumes = self.volumes
+        actual = ta.OBV(closes, volumes, cum_obv=0)
+        expected = exp_obv_result
+        res = array_equal(expected, actual)
+        self.assertEqual(res, 1)
+
     def testWOBV(self):
         from test_results import exp_wobv_result
         self.prepare_test_data("test_data2")

@@ -14,7 +14,6 @@ You should have received a copy of the JXW license with
 this file. If not, please write to: josephchenhk@gmail.com
 """
 cimport numpy as np
-import pandas as pd
 import numpy as np
 from libcpp.map cimport map as cppmap
 from libcpp.string cimport string
@@ -495,13 +494,16 @@ cpdef np.ndarray[np.float64_t, ndim=1] WOBV(
         long cum_obv = 0
 ):
     """
-    Weighted On Balance Volume (WOBV) measures buying and selling pressure as a cumulative 
-    indicator that adds **net** volume on up days and subtracts volume on down days.
+    Weighted On Balance Volume (WOBV) measures buying and selling pressure as a 
+    cumulative indicator that adds **net** volume on up days and subtracts 
+    volume on down days.
     
-    Improve the traditional OBV indicator. An extreme example is when there is a highly volatile bar, the close ends
-    up slightly higher than open, but with extreme high and low. In traditional OBV, all the volume is attributed to
-    the positive flow (favor to long position). But obviously there is misleading, because the buying and selling 
-    presures are close to each other in this case. Therefore, in WOBV, we only consider a portion of the volume:
+    Improve the traditional OBV indicator. An extreme example is when there is a 
+    highly volatile bar, the close ends up slightly higher than open, but with 
+    extreme high and low. In traditional OBV, all the volume is attributed to
+    the positive flow (favor to long position). But obviously there is 
+    misleading, because the buying and selling presures are close to each other 
+    in this case. Therefore, in WOBV, we only consider a portion of the volume:
     OBV[T] = OBV[T-1] + (CLOSE[T]-OPEN[T])/(HIGH[T]-LOW[T])*VOL[T]
     source: https://www.zhihu.com/question/37947036/answer/2915407512
 
@@ -520,9 +522,7 @@ cpdef np.ndarray[np.float64_t, ndim=1] WOBV(
     for i in range(1, n):
         if highs[i] == lows[i]:
             _obv[i] = 0
-        elif closes[i] < closes[i-1]:
-            _obv[i] = -volumes[i] * (closes[i] - opens[i]) / (highs[i] - lows[i])
-        elif closes[i] > closes[i-1]:
+        else:
             _obv[i] = volumes[i] * (closes[i] - opens[i]) / (highs[i] - lows[i])
     return _obv.cumsum()
 
