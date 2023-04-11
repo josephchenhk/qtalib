@@ -168,9 +168,6 @@ class TestFunctions(unittest.TestCase):
     def testOBV(self):
         from test_results import exp_obv_result
         self.prepare_test_data("test_data2")
-        opens = self.opens
-        highs = self.highs
-        lows = self.lows
         closes = self.closes
         volumes = self.volumes
         actual = ta.OBV(closes, volumes, cum_obv=0)
