@@ -75,6 +75,10 @@ print(ta.EMA(values, 3))
 ta.SAR(highs, lows, 0.02, 0.2)
 ```
 
+## Todo
+
+* Add `resample`
+
 ## Contributing
 * Fork it (https://github.com/josephchenhk/qtalib/fork)
 * Study how it's implemented.
