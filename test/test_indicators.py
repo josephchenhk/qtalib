@@ -19,6 +19,7 @@ import pandas as pd
 from finta import TA
 
 import qtalib.indicators as ta
+from qtalib.util import structured_to_unstructured
 import qtalib.py_indicators as pta
 
 
@@ -71,6 +72,7 @@ class TestFunctions(unittest.TestCase):
             period_slow=26,
             signal=9).dropna().values
         actual = ta.MACD(closes, period_fast=12, period_slow=26, signal=9)
+        actual = structured_to_unstructured(actual)
         res = array_equal(expected, actual)
         self.assertEqual(res, 1)
 

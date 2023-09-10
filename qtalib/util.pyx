@@ -120,3 +120,14 @@ cpdef np.ndarray[np.float64_t, ndim=2] unstructured_to_structured(
     for i, column_name in enumerate(column_names):
         structured_data[column_name] = data[:, i]
     return structured_data
+
+
+cpdef np.ndarray[np.float64_t, ndim=2] structured_to_unstructured(
+        np.ndarray data
+):
+    """Covert a structured numpy ndarray with column names into a normal numpy 
+    ndarray"""
+    # create a unstructured numpy ndarray (remove column names)
+    cdef np.ndarray[np.float64_t, ndim=2] unstructured_data
+    unstructured_data = data.view((data.dtype[0], len(data.dtype.names)))
+    return unstructured_data
