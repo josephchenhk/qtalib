@@ -117,9 +117,17 @@ volumes = ohlcv["volume"].to_numpy()
 #     cyc = ta.CYC(closes[-n-59:-n], cyc)
 #     print(cyc)
 
-print(np.allclose(
-    exp_wobv_result,
-    ta.WOBV(opens, highs, lows, closes, volumes, cum_obv=0))
+# print(np.allclose(
+#     exp_wobv_result,
+#     ta.WOBV(opens, highs, lows, closes, volumes, cum_obv=0))
+# )
+
+print(pta.CMF(
+    high=highs,
+    low=lows,
+    close=closes,
+    volume=volumes,
+    rolling_window=14)
 )
 
 

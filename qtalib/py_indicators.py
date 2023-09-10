@@ -239,3 +239,49 @@ def SS(
                 c_1 * (data[i] + data[i - 1]) / 2 + c_2 * ssf[i - 1] + c_3 *
                 ssf[i - 2])
     return ssf
+
+
+def CMF(
+        high: np.array,
+        low: np.array,
+        close: np.array,
+        volume: np.array,
+        rolling_window: 21
+):
+    """
+    Chaikin Money Flow (CMF)
+    Ref1: https://school.stockcharts.com/doku.php?id=technical_indicators:chaikin_money_flow_cmf
+    Ref2: https://www.tradingview.com/support/solutions/43000501974-chaikin-money-flow-cmf/
+
+    :param high:
+    :param low:
+    :param close:
+    :param volume:
+    :param rolling_window:
+    :return:
+    """
+    # Calculate Money Flow Multiplier (MF) : MF is between -1 t0 1, the closer
+    # close to high, the closer MF to 1, the closer close to low, the closer MF
+    # to -1
+    MF = np.where(
+        high != low,
+        ((close - low) - (high - close)) / (high - low),
+        0
+    )
+
+    # Calculate Money Flow Volume (MFV)
+    MFV = MF * volume
+    rolling_sum_MFV = np.convolve(
+        MFV,
+        np.ones(rolling_window),
+        'valid'
+    )
+    rolling_sum_volume = np.convolve(
+        volume,
+        np.ones(rolling_window),
+        'valid'
+    )
+
+    # Calculate Chaikin Money Flow (CMF)
+    CMF = rolling_sum_MFV / rolling_sum_volume
+    return CMF
