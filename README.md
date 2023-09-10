@@ -39,6 +39,8 @@ faster technical analysis library with perfect integration to Python.
 
 * Cyclicality (CLC)
 
+* Chaikin Money Flow (CMF)
+
 ## Installation
 
 You may run the folllowing command to install QTalib immediately:
@@ -73,6 +75,19 @@ print(ta.EMA(values, 3))
 
 # SAR
 ta.SAR(highs, lows, 0.02, 0.2)
+```
+
+## Compile
+
+```python
+> cd qtalib
+> python setup.py build_ext --inplace 
+```
+
+## UnitTests
+
+```python
+>  python -m unittest test/test_indicators.py 
 ```
 
 ## Todo

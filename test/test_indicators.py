@@ -34,7 +34,7 @@ def array_equal(x, y):
 class TestFunctions(unittest.TestCase):
 
     def prepare_test_data(self, dataset: str):
-        ohlcv = pd.read_csv(f"{dataset}.csv")
+        ohlcv = pd.read_csv(f"test/{dataset}.csv")
         self.ohlcv = ohlcv
         self.opens = ohlcv["open"].to_numpy()
         self.highs = ohlcv["high"].to_numpy()
@@ -168,7 +168,7 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def testOBV(self):
-        from test_results import exp_obv_result
+        from test.test_results import exp_obv_result
         self.prepare_test_data("test_data2")
         closes = self.closes
         volumes = self.volumes
@@ -178,7 +178,7 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(res, 1)
 
     def testWOBV(self):
-        from test_results import exp_wobv_result
+        from test.test_results import exp_wobv_result
         self.prepare_test_data("test_data2")
         opens = self.opens
         highs = self.highs
