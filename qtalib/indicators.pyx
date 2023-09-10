@@ -576,5 +576,58 @@ cpdef double CYC(
         delta = 100 * (ma_diff[-1] - ma_diff_min) / (ma_diff_max - ma_diff_min)
         return alpha * (delta - cyc) + cyc
 
+cpdef np.ndarray[np.float64_t, ndim=1] CMF(
+        double[:] high,
+        double[:] low,
+        double[:] close,
+        long[:] volume,
+        long rolling_window=21
+):
+    """
+    Chaikin Money Flow (CMF)
+    Ref1: https://school.stockcharts.com/doku.php?id=technical_indicators:chaikin_money_flow_cmf
+    Ref2: https://www.tradingview.com/support/solutions/43000501974-chaikin-money-flow-cmf/
+
+    :param high:
+    :param low:
+    :param close:
+    :param volume:
+    :param rolling_window:
+    :return:
+    """
+    highs = np.asarray(high)
+    lows = np.asarray(low)
+    closes = np.asarray(close)
+    volumes = np.asarray(volume)
+    # Calculate Money Flow Multiplier (MF) : MF is between -1 t0 1, the closer
+    # close to high, the closer MF to 1, the closer close to low, the closer MF
+    # to -1
+    cdef np.ndarray[np.float64_t, ndim= 1] MF
+    cdef np.ndarray[np.float64_t, ndim= 1] rolling_sum_MFV
+    cdef np.ndarray[np.float64_t, ndim= 1] rolling_sum_volume
+    cdef np.ndarray[np.float64_t, ndim= 1] CMF
+    MF = np.where(
+        highs != lows,
+        ((closes - lows) - (highs - closes)) / (highs - lows),
+        0
+    )
+
+    # Calculate Money Flow Volume (MFV)
+    MFV = MF * volumes
+    rolling_sum_MFV = np.convolve(
+        MFV,
+        np.ones(rolling_window),
+        'valid'
+    )
+    rolling_sum_volume = np.convolve(
+        volumes,
+        np.ones(rolling_window),
+        'valid'
+    )
+
+    # Calculate Chaikin Money Flow (CMF)
+    CMF = rolling_sum_MFV / rolling_sum_volume
+    return CMF
+
 
 

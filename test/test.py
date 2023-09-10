@@ -122,12 +122,19 @@ volumes = ohlcv["volume"].to_numpy()
 #     ta.WOBV(opens, highs, lows, closes, volumes, cum_obv=0))
 # )
 
-print(pta.CMF(
-    high=highs,
-    low=lows,
-    close=closes,
-    volume=volumes,
-    rolling_window=14)
-)
+print(np.allclose(
+    ta.CMF(
+        high=highs,
+        low=lows,
+        close=closes,
+        volume=volumes,
+        rolling_window=14),
+    pta.CMF(
+        high=highs,
+        low=lows,
+        close=closes,
+        volume=volumes,
+        rolling_window=14),
+))
 
 

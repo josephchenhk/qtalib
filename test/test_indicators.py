@@ -187,3 +187,15 @@ class TestFunctions(unittest.TestCase):
         expected = exp_wobv_result
         res = array_equal(expected, actual)
         self.assertEqual(res, 1)
+
+    def testCMF(self):
+        self.prepare_test_data("test_data2")
+        highs = self.highs
+        lows = self.lows
+        closes = self.closes
+        volumes = self.volumes
+        rolling_window = 14
+        actual = ta.CMF(highs, lows, closes, volumes, rolling_window)
+        expected = pta.CMF(highs, lows, closes, volumes, rolling_window)
+        res = np.allclose(actual, expected)
+        self.assertEqual(res, 1)
