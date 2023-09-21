@@ -607,7 +607,7 @@ cpdef np.ndarray[np.float64_t, ndim=1] CMF(
     cdef np.ndarray[np.float64_t, ndim= 1] rolling_sum_volume
     cdef np.ndarray[np.float64_t, ndim= 1] CMF
     MF = np.where(
-        highs != lows,
+        abs(highs - lows) > 1e-7,
         ((closes - lows) - (highs - closes)) / (highs - lows),
         0
     )
@@ -626,7 +626,11 @@ cpdef np.ndarray[np.float64_t, ndim=1] CMF(
     )
 
     # Calculate Chaikin Money Flow (CMF)
-    CMF = rolling_sum_MFV / rolling_sum_volume
+    CMF = np.where(
+        abs(rolling_sum_volume) > 1e-7,
+        rolling_sum_MFV / rolling_sum_volume,
+        0
+    )
     return CMF
 
 
