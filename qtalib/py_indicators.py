@@ -263,11 +263,9 @@ def CMF(
     # Calculate Money Flow Multiplier (MF) : MF is between -1 t0 1, the closer
     # close to high, the closer MF to 1, the closer close to low, the closer MF
     # to -1
-    MF = np.where(
-        high != low,
-        ((close - low) - (high - close)) / (high - low),
-        0
-    )
+    a = (close - low) - (high - close)
+    b = high - low
+    MF = np.divide(a, b, out=np.zeros_like(a), where=b!=0)
 
     # Calculate Money Flow Volume (MFV)
     MFV = MF * volume
@@ -283,5 +281,10 @@ def CMF(
     )
 
     # Calculate Chaikin Money Flow (CMF)
-    CMF = rolling_sum_MFV / rolling_sum_volume
+    CMF = np.divide(
+        rolling_sum_MFV,
+        rolling_sum_volume,
+        out=np.zeros_like(rolling_sum_MFV),
+        where=rolling_sum_volume!=0
+    )
     return CMF
