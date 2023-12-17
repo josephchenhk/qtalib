@@ -23,6 +23,7 @@ from libcpp.string cimport string
 # from cpython cimport array
 from qtalib.util import shift
 from qtalib.util import unstructured_to_structured
+from qtalib.py_indicators import TC
 
 
 cpdef np.ndarray[np.float64_t, ndim=1] SMA(double[:] closes, int period):

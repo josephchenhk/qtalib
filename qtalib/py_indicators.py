@@ -18,6 +18,8 @@ from typing import Dict, Union, List, Any
 
 import numpy as np
 import pandas as pd
+from scipy.stats import linregress
+from scipy.optimize import minimize
 from finta import TA
 
 
@@ -246,7 +248,7 @@ def CMF(
         low: np.array,
         close: np.array,
         volume: np.array,
-        rolling_window: 21
+        rolling_window: int = 21
 ):
     """
     Chaikin Money Flow (CMF)
@@ -288,3 +290,113 @@ def CMF(
         where=rolling_sum_volume!=0
     )
     return CMF
+
+def _TC(
+        close: np.array,
+        select_samples: int = 3
+):
+    """
+    Trend Channel (TC)
+
+    :param close:
+    :param select_samples:
+    :return:
+    """
+    def calculate_distance(x, y, slope, intercept):
+        distances = []
+        for i in range(len(x)):
+            distance = (slope * x[i] - y[i] + intercept) / np.sqrt(
+                slope ** 2 + 1)
+            distances.append(distance)
+        return distances
+
+    # Example data
+    x = range(len(close))
+    y = close
+
+    # Construct straight line and calculate regression parameters
+    slope, intercept, r_value, p_value, std_err = linregress(x, y)
+    line = slope * x + intercept
+
+    # Calculate distances from data points to the straight line
+    distances = calculate_distance(x, y, slope, intercept)
+
+    # Separate distances into groups (above and below the line)
+    groups = [[]]
+    for i in range(len(x)):
+        if i > 0 and distances[i] * distances[i-1] <= 0:
+            groups.append([])
+        groups[-1].append(i)
+
+    highs = []
+    lows = []
+    for group in groups:
+        group_distances = [distances[i] for i in group]
+        if sum(group_distances) >= 0:
+            max_index = group_distances.index(max(group_distances))
+            highs.append(group[max_index])
+        else:
+            min_index = group_distances.index(min(group_distances))
+            lows.append(group[min_index])
+
+    high_distances = [distances[i] for i in highs]
+    low_distances = [distances[i] for i in lows]
+
+    # Sort the list in descending order and get the two largest values
+    high_values = sorted(
+        zip(highs, high_distances),
+        key=lambda x: x[1], reverse=True)[:select_samples]
+    low_values = sorted(
+        zip(lows, low_distances),
+        key=lambda x: x[1], reverse=False)[:select_samples]
+
+    def func(slope, intercept, high_xs, high_ys):
+        sum_distance = 0
+        for x, y in zip(high_xs, high_ys):
+            distance = np.abs(slope * x - y + intercept) / np.sqrt(
+                slope ** 2 + 1)
+            sum_distance += distance
+        return sum_distance
+
+    high_xs = [i for i, _ in high_values]
+    high_ys = [y[i] for i, _ in high_values]
+    objective = lambda x: func(slope, x, high_xs, high_ys)
+    result = minimize(objective, x0=intercept)
+    intercept_above = result.x[0]
+    # line_above = slope * x + intercept_above
+
+    low_xs = [i for i, _ in low_values]
+    low_ys = [y[i] for i, _ in low_values]
+    objective = lambda x: func(slope, x, low_xs, low_ys)
+    result = minimize(objective, x0=intercept)
+    intercept_below = result.x[0]
+    # line_below = slope * x + intercept_below
+    return slope, intercept, intercept_above, intercept_below
+
+def TC(
+        close: np.array = None,
+        high: np.array = None,
+        low: np.array = None,
+        select_samples: int = 3
+):
+    """
+    Trend Channel (TC)
+
+    :param close:
+    :param high:
+    :param low:
+    :param select_samples:
+    :return:
+    """
+    if close is not None and (high is None or low is None):
+        slope, intercept, intercept_above, intercept_below = _TC(
+            close, select_samples)
+    if high is not None:
+        slope, _, intercept_above, _ = _TC(high, select_samples)
+    if low is not None:
+        slope, _, _, intercept_below = _TC(low, select_samples)
+    return {
+        'slope': slope,
+        'intercept_above': intercept_above,
+        'intercept_below': intercept_below
+    }

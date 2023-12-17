@@ -13,6 +13,7 @@ written for another century.
 You should have received a copy of the JXW license with
 this file. If not, please write to: josephchenhk@gmail.com
 """
+import matplotlib.pyplot as plt
 import qtalib.py_indicators as pta
 import qtalib.indicators as ta
 from qtalib.util import unstructured_to_structured
@@ -31,7 +32,7 @@ os.environ['CFLAGS'] = "-I" + numpy_path
 pyximport.install(setup_args={"include_dirs": numpy_path})
 
 
-ohlcv = pd.read_csv("test/test_data2.csv")
+ohlcv = pd.read_csv("test/test_data3.csv")
 opens = ohlcv["open"].to_numpy()
 highs = ohlcv["high"].to_numpy()
 lows = ohlcv["low"].to_numpy()
@@ -122,19 +123,41 @@ volumes = ohlcv["volume"].to_numpy()
 #     ta.WOBV(opens, highs, lows, closes, volumes, cum_obv=0))
 # )
 
-print(np.allclose(
-    ta.CMF(
-        high=highs,
-        low=lows,
-        close=closes,
-        volume=volumes,
-        rolling_window=14),
-    pta.CMF(
-        high=highs,
-        low=lows,
-        close=closes,
-        volume=volumes,
-        rolling_window=14),
-))
+# print(np.allclose(
+#     ta.CMF(
+#         high=highs,
+#         low=lows,
+#         close=closes,
+#         volume=volumes,
+#         rolling_window=14),
+#     pta.CMF(
+#         high=highs,
+#         low=lows,
+#         close=closes,
+#         volume=volumes,
+#         rolling_window=14),
+# ))
+
+tc = ta.TC(
+    close=closes,
+    high=highs,
+    low=lows
+)
+slope = tc.get('slope')
+intercept_above = tc.get('intercept_above')
+intercept_below = tc.get('intercept_below')
+x = range(len(closes))
+y = closes
+line_above = slope * x + intercept_above
+line_below = slope * x + intercept_below
+plt.scatter(x, y, label='Data')
+plt.plot(x, line_above, color='green', label='Trend Line (above)')
+plt.plot(x, line_below, color='red', label='Trend Line (below)')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.title('Trend Line')
+plt.legend()
+plt.show()
+print()
 
 
