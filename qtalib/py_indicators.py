@@ -316,7 +316,7 @@ def _TC(
 
     # Construct straight line and calculate regression parameters
     slope, intercept, r_value, p_value, std_err = linregress(x, y)
-    line = slope * x + intercept
+    # line = slope * x + intercept
 
     # Calculate distances from data points to the straight line
     distances = calculate_distance(x, y, slope, intercept)
@@ -362,15 +362,16 @@ def _TC(
     high_ys = [y[i] for i, _ in high_values]
     objective = lambda x: func(slope, x, high_xs, high_ys)
     result = minimize(objective, x0=intercept)
-    intercept_above = result.x[0]
-    # line_above = slope * x + intercept_above
+    intercept_below = result.x[0]
+    # line_below = slope * x + intercept_below
 
     low_xs = [i for i, _ in low_values]
     low_ys = [y[i] for i, _ in low_values]
     objective = lambda x: func(slope, x, low_xs, low_ys)
     result = minimize(objective, x0=intercept)
-    intercept_below = result.x[0]
-    # line_below = slope * x + intercept_below
+    intercept_above = result.x[0]
+    # line_above = slope * x + intercept_above
+
     return slope, intercept, intercept_above, intercept_below
 
 def TC(
@@ -391,12 +392,14 @@ def TC(
     if close is not None and (high is None or low is None):
         slope, intercept, intercept_above, intercept_below = _TC(
             close, select_samples)
+        slope_above = slope_below = slope
     if high is not None:
-        slope, _, intercept_above, _ = _TC(high, select_samples)
+        slope_above, _, intercept_above, _ = _TC(high, select_samples)
     if low is not None:
-        slope, _, _, intercept_below = _TC(low, select_samples)
+        slope_below, _, _, intercept_below = _TC(low, select_samples)
     return {
-        'slope': slope,
+        'slope_above': slope_above,
         'intercept_above': intercept_above,
+        'slope_below': slope_below,
         'intercept_below': intercept_below
     }

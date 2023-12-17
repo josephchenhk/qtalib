@@ -140,22 +140,23 @@ volumes = ohlcv["volume"].to_numpy()
 
 tc = ta.TC(
     close=closes,
-    high=highs,
-    low=lows
+    # high=highs,
+    # low=lows
 )
-slope = tc.get('slope')
+slope_above = tc.get('slope_above')
 intercept_above = tc.get('intercept_above')
+slope_below = tc.get('slope_below')
 intercept_below = tc.get('intercept_below')
 x = range(len(closes))
 y = closes
-line_above = slope * x + intercept_above
-line_below = slope * x + intercept_below
+line_above = slope_above * x + intercept_above
+line_below = slope_above * x + intercept_below
 plt.scatter(x, y, label='Data')
 plt.plot(x, line_above, color='green', label='Trend Line (above)')
 plt.plot(x, line_below, color='red', label='Trend Line (below)')
 plt.xlabel('X')
 plt.ylabel('Y')
-plt.title('Trend Line')
+plt.title('Trend Channel')
 plt.legend()
 plt.show()
 print()
