@@ -8,7 +8,7 @@
     <img src ="https://img.shields.io/badge/license-JXW-orange"/>
 </p>
 
-**Latest update on 2022-12-18**
+**Latest update on 2023-12-18**
 
 Technical indicators implemented in Cython/C. This is supposed to be a
 faster technical analysis library with perfect integration to Python.
@@ -40,6 +40,8 @@ faster technical analysis library with perfect integration to Python.
 * Cyclicality (CLC)
 
 * Chaikin Money Flow (CMF)
+
+* Trend Channel (TC)
 
 ## Installation
 
